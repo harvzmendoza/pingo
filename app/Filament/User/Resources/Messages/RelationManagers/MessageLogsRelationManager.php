@@ -30,9 +30,19 @@ class MessageLogsRelationManager extends RelationManager
                     ->label('Phone'),
                 TextColumn::make('status')
                     ->badge(),
+                TextColumn::make('provider_message_id')
+                    ->label('Provider ID')
+                    ->placeholder('—')
+                    ->toggleable(),
                 TextColumn::make('response')
                     ->limit(48)
                     ->tooltip(fn (?string $state): ?string => $state),
+                TextColumn::make('error_message')
+                    ->label('Error')
+                    ->limit(40)
+                    ->tooltip(fn (?string $state): ?string => $state)
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('sent_at')
                     ->dateTime()
                     ->sortable(),

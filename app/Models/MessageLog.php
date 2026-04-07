@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['message_id', 'contact_id', 'status', 'response', 'sent_at'])]
+#[Fillable([
+    'message_id',
+    'contact_id',
+    'status',
+    'response',
+    'provider_message_id',
+    'error_message',
+    'sent_at',
+])]
 class MessageLog extends Model
 {
     /**

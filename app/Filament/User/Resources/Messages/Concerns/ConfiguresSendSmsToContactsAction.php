@@ -2,9 +2,9 @@
 
 namespace App\Filament\User\Resources\Messages\Concerns;
 
+use App\Actions\SendSmsToContactsAction;
 use App\Models\Contact;
 use App\Models\Message;
-use App\Services\MessageDispatchService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Notifications\Notification;
@@ -45,8 +45,7 @@ trait ConfiguresSendSmsToContactsAction
                     return;
                 }
 
-                $dispatch = app(MessageDispatchService::class);
-                $result = $dispatch->sendToContacts($message, $ids);
+                $result = app(SendSmsToContactsAction::class)->execute($message, $ids);
 
                 Notification::make()
                     ->success()

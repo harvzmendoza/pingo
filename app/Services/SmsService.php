@@ -2,28 +2,61 @@
 
 namespace App\Services;
 
+use App\Services\Sms\Contracts\SmsProviderContract;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
+/**
+ * Application entry point for outbound SMS. Delegates to a configured provider.
+ */
 class SmsService
 {
+    public function __construct(
+        private readonly SmsProviderContract $provider,
+    ) {}
+
     /**
-     * Send an SMS to the given number. Replace this implementation with a real provider later.
-     *
-     * @return array{success: bool, response: string|null}
+     * @return array{
+     *     success: bool,
+     *     message_id: string|null,
+     *     response: string|null,
+     *     error_message: string|null,
+     * }
      */
     public function send(string $phoneNumber, string $message): array
     {
-        Log::info('SMS simulated send', [
-            'to' => $phoneNumber,
-            'length' => mb_strlen($message),
-        ]);
+        try {
+            $result = $this->provider->send($phoneNumber, $message);
 
-        return [
-            'success' => true,
-            'response' => json_encode([
-                'simulated' => true,
+            $success = (bool) ($result['success'] ?? false);
+
+            if (! $success) {
+                return [
+                    'success' => false,
+                    'message_id' => $result['message_id'] ?? null,
+                    'response' => $result['response'] ?? null,
+                    'error_message' => $result['response'] ?? 'The SMS provider did not accept the message.',
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message_id' => $result['message_id'] ?? null,
+                'response' => $result['response'] ?? null,
+                'error_message' => null,
+            ];
+        } catch (Throwable $e) {
+            Log::error('SMS provider failed', [
                 'to' => $phoneNumber,
-            ], JSON_THROW_ON_ERROR),
-        ];
+                'exception' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message_id' => null,
+                'response' => null,
+                'error_message' => $e->getMessage(),
+            ];
+        }
     }
 }

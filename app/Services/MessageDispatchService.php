@@ -6,12 +6,15 @@ use App\Enums\MessageLogStatus;
 use App\Models\Contact;
 use App\Models\Message;
 use App\Models\MessageLog;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Throwable;
 
 class MessageDispatchService
 {
     public function __construct(
         private readonly SmsService $smsService,
+        private readonly PhoneNumberService $phoneNumberService,
     ) {}
 
     /**
@@ -37,16 +40,35 @@ class MessageDispatchService
                 continue;
             }
 
-            $result = $this->smsService->send($contact->phone_number, $message->content);
+            try {
+                $normalizedPhone = $this->phoneNumberService->normalize($contact->phone_number);
+                $result = $this->smsService->send($normalizedPhone, $message->content);
+            } catch (Throwable $e) {
+                $this->persistLog(
+                    message: $message,
+                    contact: $contact,
+                    status: MessageLogStatus::Failed,
+                    response: null,
+                    providerMessageId: null,
+                    errorMessage: $e->getMessage(),
+                    sentAt: null,
+                );
+                $failed++;
+
+                continue;
+            }
+
             $success = $result['success'] ?? false;
 
-            MessageLog::query()->create([
-                'message_id' => $message->id,
-                'contact_id' => $contact->id,
-                'status' => $success ? MessageLogStatus::Sent : MessageLogStatus::Failed,
-                'response' => $result['response'] ?? null,
-                'sent_at' => now(),
-            ]);
+            $this->persistLog(
+                message: $message,
+                contact: $contact,
+                status: $success ? MessageLogStatus::Sent : MessageLogStatus::Failed,
+                response: $result['response'] ?? null,
+                providerMessageId: $result['message_id'] ?? null,
+                errorMessage: $success ? null : ($result['error_message'] ?? null),
+                sentAt: $success ? now() : null,
+            );
 
             if ($success) {
                 $sent++;
@@ -60,5 +82,25 @@ class MessageDispatchService
             'failed' => $failed,
             'skipped' => $skipped,
         ];
+    }
+
+    private function persistLog(
+        Message $message,
+        Contact $contact,
+        MessageLogStatus $status,
+        ?string $response,
+        ?string $providerMessageId,
+        ?string $errorMessage,
+        ?Carbon $sentAt,
+    ): void {
+        MessageLog::query()->create([
+            'message_id' => $message->id,
+            'contact_id' => $contact->id,
+            'status' => $status,
+            'response' => $response,
+            'provider_message_id' => $providerMessageId,
+            'error_message' => $errorMessage,
+            'sent_at' => $sentAt,
+        ]);
     }
 }
