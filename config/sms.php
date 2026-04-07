@@ -16,7 +16,7 @@ return [
     'driver' => env('SMS_DRIVER', 'log'),
 
     'unisms' => [
-        'api_url' => env('UNISMS_API_URL'),
+        'api_url' => env('UNISMS_API_URL', 'https://unismsapi.com/api/sms'),
         'api_key' => env('UNISMS_API_KEY'),
         'sender_id' => env('UNISMS_SENDER_ID'),
     ],
