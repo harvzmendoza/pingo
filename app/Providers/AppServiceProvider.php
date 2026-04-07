@@ -15,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(SmsProviderContract::class, function ($app): SmsProviderContract {
+            if ($app->runningUnitTests()) {
+                return $app->make(LogSmsProvider::class);
+            }
+
             return match (config('sms.driver')) {
                 'unisms' => $app->make(UniSmsProvider::class),
                 default => $app->make(LogSmsProvider::class),
