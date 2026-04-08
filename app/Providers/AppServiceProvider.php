@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\Sms\Contracts\SmsProviderContract;
 use App\Services\Sms\Providers\LogSmsProvider;
+use App\Services\Sms\Providers\SkySmsProvider;
 use App\Services\Sms\Providers\UniSmsProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
 
             return match (config('sms.driver')) {
                 'unisms' => $app->make(UniSmsProvider::class),
+                'skysms' => $app->make(SkySmsProvider::class),
                 default => $app->make(LogSmsProvider::class),
             };
         });
