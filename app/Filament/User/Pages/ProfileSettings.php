@@ -97,6 +97,7 @@ class ProfileSettings extends Page
                     ->maxLength(255),
                 TextInput::make('email')
                     ->label('Email')
+                    ->readOnly()
                     ->required()
                     ->email()
                     ->maxLength(255),
