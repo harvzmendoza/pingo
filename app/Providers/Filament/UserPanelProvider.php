@@ -2,6 +2,11 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\User\Widgets\CampaignVolumeChart;
+use App\Filament\User\Widgets\ContactsGrowthChart;
+use App\Filament\User\Widgets\DeliveryStatusSplitChart;
+use App\Filament\User\Widgets\DeliveryTrendChart;
+use App\Filament\User\Widgets\MessagingStats;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,8 +15,6 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -42,8 +45,11 @@ class UserPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\Filament\User\Widgets')
             ->widgets([
-                // AccountWidget::class,
-                // FilamentInfoWidget::class,
+                MessagingStats::class,
+                DeliveryTrendChart::class,
+                CampaignVolumeChart::class,
+                ContactsGrowthChart::class,
+                DeliveryStatusSplitChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
