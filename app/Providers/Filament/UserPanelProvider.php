@@ -29,6 +29,7 @@ class UserPanelProvider extends PanelProvider
             ->login()
             ->registration()
             ->brandName('User Panel')
+            ->darkMode(false)
             ->brandLogo(asset('images/pingo-logo3.png'))
             ->brandLogoHeight('3rem')
             ->colors([
