@@ -33,7 +33,7 @@ class UserPanelProvider extends PanelProvider
             ->id('user')
             ->path('user')
             ->login()
-            ->registration()
+            // ->registration()
             ->brandName('User Panel')
             ->darkMode(false)
             ->brandLogo(asset('images/pingo-full.png'))
