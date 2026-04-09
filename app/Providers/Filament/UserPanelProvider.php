@@ -10,6 +10,7 @@ use App\Filament\User\Widgets\DeliveryStatusSplitChart;
 use App\Filament\User\Widgets\DeliveryTrendChart;
 use App\Filament\User\Widgets\MessagingStats;
 use App\Http\Middleware\EnsureUserBusinessOnboardingIsComplete;
+use App\Http\Middleware\EnsureUserHasUserRole;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -77,6 +78,7 @@ class UserPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureUserHasUserRole::class,
                 EnsureUserBusinessOnboardingIsComplete::class,
             ], isPersistent: true);
     }
