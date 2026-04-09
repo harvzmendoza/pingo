@@ -9,7 +9,7 @@
 
 @layer components {
     .vite-theme-card {
-        @apply rounded-2xl border border-purple-300/40 bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 p-6 shadow-sm shadow-purple-500/30;
+        @apply rounded-2xl border border-blue-300/40 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 shadow-sm shadow-blue-500/30;
     }
 
     /* Tutorial */
@@ -76,5 +76,31 @@
 
     .tutorial-step-emerald {
         @apply border-emerald-200 bg-emerald-50;
+    }
+
+    /* Dashboard */
+
+    .dashboard-business-hero {
+        @apply flex flex-col gap-4 rounded-2xl border border-gray-200 bg-purple-600 p-6 text-white shadow-lg md:flex-row md:items-start md:justify-between;
+    }
+
+    .dashboard-business-kicker {
+        @apply text-xs font-semibold uppercase tracking-[0.2em] text-purple-200;
+    }
+
+    .dashboard-business-title {
+        @apply mt-2 text-2xl font-bold leading-tight text-white md:text-3xl;
+    }
+
+    .dashboard-business-description {
+        @apply mt-3 max-w-2xl text-sm leading-6 text-purple-100;
+    }
+
+    .dashboard-business-pill {
+        @apply inline-flex h-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur;
+    }
+
+    .dashboard-business-dot {
+        @apply h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-300;
     }
 }

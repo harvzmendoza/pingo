@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\User\Pages\BusinessOnboarding;
+use App\Filament\User\Pages\Dashboard;
 use App\Filament\User\Widgets\CampaignVolumeChart;
 use App\Filament\User\Widgets\ContactsGrowthChart;
 use App\Filament\User\Widgets\DeliveryStatusSplitChart;
@@ -13,7 +14,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
