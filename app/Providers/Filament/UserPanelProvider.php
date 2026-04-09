@@ -2,11 +2,13 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\User\Pages\BusinessOnboarding;
 use App\Filament\User\Widgets\CampaignVolumeChart;
 use App\Filament\User\Widgets\ContactsGrowthChart;
 use App\Filament\User\Widgets\DeliveryStatusSplitChart;
 use App\Filament\User\Widgets\DeliveryTrendChart;
 use App\Filament\User\Widgets\MessagingStats;
+use App\Http\Middleware\EnsureUserBusinessOnboardingIsComplete;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -43,6 +45,7 @@ class UserPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/User/Pages'), for: 'App\Filament\User\Pages')
             ->pages([
                 Dashboard::class,
+                BusinessOnboarding::class,
             ])
             ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\Filament\User\Widgets')
             ->widgets([
@@ -69,6 +72,7 @@ class UserPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+                EnsureUserBusinessOnboardingIsComplete::class,
+            ], isPersistent: true);
     }
 }
