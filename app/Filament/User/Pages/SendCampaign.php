@@ -107,7 +107,9 @@ class SendCampaign extends Page
                 Textarea::make('content')
                     ->label('Message')
                     ->required()
+                    ->live()
                     ->maxLength(160)
+                    ->helperText(fn (Get $get): string => strlen((string) ($get('content') ?? '')).' / 160 characters')
                     ->rows(5)
                     ->columnSpanFull(),
             ])

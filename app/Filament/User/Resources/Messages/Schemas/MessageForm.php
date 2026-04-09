@@ -6,6 +6,7 @@ use App\Filament\User\Pages\MessagePolicy;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Callout;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class MessageForm
@@ -25,6 +26,9 @@ class MessageForm
                     ->columnSpanFull(),
                 Textarea::make('content')
                     ->required()
+                    ->live()
+                    ->maxLength(160)
+                    ->helperText(fn (Get $get): string => strlen((string) ($get('content') ?? '')).' / 160 characters')
                     ->rows(6)
                     ->columnSpanFull(),
             ]);
