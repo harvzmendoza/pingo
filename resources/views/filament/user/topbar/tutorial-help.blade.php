@@ -13,53 +13,68 @@
         />
     </x-slot>
 
-    <x-slot name="heading">
-        Quick Start Tutorial
-    </x-slot>
+    <x-slot name="heading">Messaging Quick Start</x-slot>
 
-    <x-slot name="description">
-        Learn the basic flow to use your messaging dashboard in under a minute.
-    </x-slot>
+    <x-slot name="description">Follow these steps to send safely and avoid policy penalties.</x-slot>
 
-    <div x-data="{ step: 1 }" class="space-y-5">
-        <div class="flex items-center gap-2 text-xs text-gray-500">
-            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full border" :class="step >= 1 ? 'border-primary-500 text-primary-600' : 'border-gray-300'">1</span>
-            <span class="h-px w-8 bg-gray-300"></span>
-            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full border" :class="step >= 2 ? 'border-primary-500 text-primary-600' : 'border-gray-300'">2</span>
-            <span class="h-px w-8 bg-gray-300"></span>
-            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full border" :class="step >= 3 ? 'border-primary-500 text-primary-600' : 'border-gray-300'">3</span>
-            <span class="h-px w-8 bg-gray-300"></span>
-            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full border" :class="step >= 4 ? 'border-primary-500 text-primary-600' : 'border-gray-300'">4</span>
+    <div x-data="{ step: 1, total: 5 }" class="space-y-5">
+        <div class="tutorial-progress">
+            <template x-for="index in total" :key="index">
+                <span
+                    class="tutorial-progress-dot"
+                    :class="step >= index ? 'is-active' : ''"
+                    x-text="index"
+                ></span>
+            </template>
         </div>
 
-        <div x-show="step === 1" x-transition>
-            <h4 class="text-base font-semibold text-gray-900">Step 1: Add contacts</h4>
-            <p class="mt-2 text-sm text-gray-600">Go to <strong>Contacts</strong>, then click <strong>Create contact</strong> to save name and phone number.</p>
+        <div class="tutorial-card" x-show="step === 1" x-transition>
+            <p class="tutorial-step-label">Step 1</p>
+            <h4 class="text-base font-semibold text-gray-900">Add contacts</h4>
+            <p class="mt-2 text-sm text-gray-600">Go to <strong>Contacts</strong> and click <strong>Create contact</strong> to save a valid recipient number.</p>
         </div>
 
-        <div x-show="step === 2" x-transition>
-            <h4 class="text-base font-semibold text-gray-900">Step 2: Create your message</h4>
-            <p class="mt-2 text-sm text-gray-600">Open <strong>Messages</strong> and create a new SMS template. Keep your content clear and concise.</p>
+        <div class="tutorial-card" x-show="step === 2" x-transition>
+            <p class="tutorial-step-label">Step 2</p>
+            <h4 class="text-base font-semibold text-gray-900">Create your message</h4>
+            <p class="mt-2 text-sm text-gray-600">Open <strong>Messages</strong> and create a clear SMS template. Keep content short and direct.</p>
         </div>
 
-        <div x-show="step === 3" x-transition>
-            <h4 class="text-base font-semibold text-gray-900">Step 3: Send campaign</h4>
-            <p class="mt-2 text-sm text-gray-600">Open <strong>Send Campaign</strong>, choose recipients, then dispatch your message.</p>
+        <div class="tutorial-card" x-show="step === 3" x-transition>
+            <p class="tutorial-step-label">Step 3</p>
+            <h4 class="text-base font-semibold text-gray-900">Review message policy</h4>
+            <p class="mt-2 mb-3 text-sm text-gray-600">Before sending, review prohibited content like links and profanity to avoid credit deductions.</p>
+            <div class="mt-3">
+                <x-filament::button
+                    tag="a"
+                    color="gray"
+                    :href="url('/user/message-policy')"
+                >
+                    Open Message Policy
+                </x-filament::button>
+            </div>
         </div>
 
-        <div x-show="step === 4" x-transition>
-            <h4 class="text-base font-semibold text-gray-900">Step 4: Track results</h4>
-            <p class="mt-2 text-sm text-gray-600">Return to the dashboard to monitor deliveries, failures, and campaign trends using the charts.</p>
+        <div class="tutorial-card" x-show="step === 4" x-transition>
+            <p class="tutorial-step-label">Step 4</p>
+            <h4 class="text-base font-semibold text-gray-900">Send campaign</h4>
+            <p class="mt-2 text-sm text-gray-600">Open <strong>Send Campaign</strong>, choose recipients, and dispatch your approved message.</p>
         </div>
 
-        <div class="flex items-center justify-between border-t pt-4">
+        <div class="tutorial-card" x-show="step === 5" x-transition>
+            <p class="tutorial-step-label">Step 5</p>
+            <h4 class="text-base font-semibold text-gray-900">Track results</h4>
+            <p class="mt-2 text-sm text-gray-600">Return to the dashboard to monitor deliveries, failures, and campaign trends.</p>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-gray-200 pt-4">
             <x-filament::button color="gray" x-on:click="step = Math.max(1, step - 1)">
                 Previous
             </x-filament::button>
 
-            <div class="text-xs text-gray-500" x-text="`Step ${step} of 4`"></div>
+            <div class="text-xs text-gray-500" x-text="`Step ${step} of ${total}`"></div>
 
-            <x-filament::button x-on:click="step = Math.min(4, step + 1)">
+            <x-filament::button x-on:click="step = Math.min(total, step + 1)">
                 Next
             </x-filament::button>
         </div>
