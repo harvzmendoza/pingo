@@ -28,6 +28,8 @@ class UserPanelProvider extends PanelProvider
             ->path('user')
             ->login()
             ->brandName('User Panel')
+            ->brandLogo(asset('images/pingo-logo1.png'))
+            ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Purple,
             ])
