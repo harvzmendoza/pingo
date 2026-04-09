@@ -16,6 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
     'name',
     'email',
     'password',
+    'avatar_path',
     'business_name',
     'business_description',
     'business_category',
