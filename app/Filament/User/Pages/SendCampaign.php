@@ -13,6 +13,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Utilities\Get;
@@ -76,6 +77,15 @@ class SendCampaign extends Page
     {
         return $schema
             ->components([
+                Callout::make('Content policy reminder')
+                    ->description('Avoid URLs/links and profanity. Violations may still show as sent, but messages may not be delivered and penalty credits may apply. Bulk penalties are charged per recipient.')
+                    ->info()
+                    ->actions([
+                        Action::make('viewContentPolicy')
+                            ->label('View content policy')
+                            ->url('https://skysms.skyio.site/docs#content-policy', shouldOpenInNewTab: true),
+                    ])
+                    ->columnSpanFull(),
                 Toggle::make('send_to_all_contacts')
                     ->label('Send to all contacts')
                     ->helperText('Enable this to send to your full contact list.')
