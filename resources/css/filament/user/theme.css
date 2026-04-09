@@ -2,3 +2,9 @@
 
 @source '../../../../app/Filament/User/**/*';
 @source '../../../../resources/views/filament/user/**/*';
+
+@layer components {
+    .vite-theme-card {
+        @apply rounded-2xl border border-purple-300/40 bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 p-6 shadow-sm shadow-purple-500/30;
+    }
+}

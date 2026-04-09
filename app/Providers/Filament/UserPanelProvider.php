@@ -32,6 +32,7 @@ class UserPanelProvider extends PanelProvider
         return $panel
             ->id('user')
             ->path('user')
+            ->viteTheme('resources/css/filament/user/theme.css')
             ->login()
             // ->registration()
             ->brandName('User Panel')
