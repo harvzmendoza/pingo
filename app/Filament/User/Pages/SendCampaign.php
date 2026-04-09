@@ -83,7 +83,7 @@ class SendCampaign extends Page
                     ->actions([
                         Action::make('viewContentPolicy')
                             ->label('View content policy')
-                            ->url('https://skysms.skyio.site/docs#content-policy', shouldOpenInNewTab: true),
+                            ->url(MessagePolicy::getUrl(panel: 'user')),
                     ])
                     ->columnSpanFull(),
                 Toggle::make('send_to_all_contacts')

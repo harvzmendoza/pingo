@@ -2,6 +2,7 @@
 
 namespace App\Filament\User\Resources\Messages\Schemas;
 
+use App\Filament\User\Pages\MessagePolicy;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Callout;
@@ -19,7 +20,7 @@ class MessageForm
                     ->actions([
                         Action::make('viewContentPolicy')
                             ->label('View content policy')
-                            ->url('https://skysms.skyio.site/docs#content-policy', shouldOpenInNewTab: true),
+                            ->url(MessagePolicy::getUrl(panel: 'user')),
                     ])
                     ->columnSpanFull(),
                 Textarea::make('content')
