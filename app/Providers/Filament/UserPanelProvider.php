@@ -27,8 +27,9 @@ class UserPanelProvider extends PanelProvider
             ->id('user')
             ->path('user')
             ->login()
+            ->registration()
             ->brandName('User Panel')
-            ->brandLogo(asset('images/pingo-logo1.png'))
+            ->brandLogo(asset('images/pingo-logo3.png'))
             ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Purple,
