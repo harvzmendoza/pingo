@@ -17,15 +17,16 @@ class EnsureUserIsNotUserRoleForAdminPanel
             return $next($request);
         }
 
-        if (! $user->hasRole('user')) {
-            return $next($request);
+        // If user has only the 'user' role, deny access
+        if ($user->hasRole('user') && $user->roles()->count() === 1) {
+            auth()->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/admin/login');
         }
 
-        auth()->logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/admin/login');
+        return $next($request);
     }
 }
