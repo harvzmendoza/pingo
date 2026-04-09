@@ -30,7 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin') 
             ->login()
-            ->brandLogo(asset('images/pingo-logo1.png'))
+            ->brandLogo(asset('images/pingo-full.png'))
             ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Purple,
