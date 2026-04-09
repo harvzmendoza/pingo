@@ -93,9 +93,10 @@ class MessageDispatchService
         ?string $errorMessage,
         ?Carbon $sentAt,
     ): void {
-        MessageLog::query()->create([
+        MessageLog::query()->updateOrCreate([
             'message_id' => $message->id,
             'contact_id' => $contact->id,
+        ], [
             'status' => $status,
             'response' => $response,
             'provider_message_id' => $providerMessageId,
