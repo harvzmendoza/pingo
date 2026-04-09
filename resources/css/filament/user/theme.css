@@ -81,11 +81,11 @@
     /* Dashboard */
 
     .dashboard-business-hero {
-        @apply flex flex-col gap-4 rounded-2xl border border-gray-200 bg-purple-600 p-6 text-white shadow-lg md:flex-row md:items-start md:justify-between;
+        @apply flex flex-col gap-4 rounded-2xl border border-purple-200/70 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-6 text-white shadow-md shadow-violet-500/30 md:flex-row md:items-start md:justify-between;
     }
 
     .dashboard-business-kicker {
-        @apply text-xs font-semibold uppercase tracking-[0.2em] text-purple-200;
+        @apply text-xs font-semibold uppercase tracking-[0.2em] text-violet-100;
     }
 
     .dashboard-business-title {
@@ -93,14 +93,56 @@
     }
 
     .dashboard-business-description {
-        @apply mt-3 max-w-2xl text-sm leading-6 text-purple-100;
+        @apply mt-3 max-w-2xl text-sm leading-6 text-violet-50/95;
+    }
+
+    .dashboard-business-meta {
+        @apply flex flex-col items-start gap-2;
     }
 
     .dashboard-business-pill {
-        @apply inline-flex h-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur;
+        @apply inline-flex h-fit items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm;
     }
 
     .dashboard-business-dot {
         @apply h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-300;
+    }
+
+    .dashboard-business-badge {
+        @apply inline-flex items-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 text-xs text-violet-50/90;
+    }
+
+    .dashboard-business-badge-strong {
+        @apply rounded-md bg-white/20 px-1.5 py-0.5 font-semibold text-white;
+    }
+
+    /* Sidebar footer */
+
+    .sidebar-user-footer {
+        @apply mx-3 mb-3 space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm;
+    }
+
+    .sidebar-user-row {
+        @apply flex items-start justify-between gap-3;
+    }
+
+    .sidebar-user-meta {
+        @apply min-w-0 flex-1;
+    }
+
+    .sidebar-user-label {
+        @apply text-[11px] font-semibold uppercase tracking-wide text-purple-600;
+    }
+
+    .sidebar-user-name {
+        @apply truncate text-sm font-semibold text-gray-900;
+    }
+
+    .sidebar-user-subtitle {
+        @apply text-xs text-gray-500;
+    }
+
+    .sidebar-signout-btn {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700;
     }
 }
