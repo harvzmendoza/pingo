@@ -35,7 +35,7 @@ class UserPanelProvider extends PanelProvider
             ->path('user')
             ->viteTheme('resources/css/filament/user/theme.css')
             ->login()
-            // ->registration()
+            ->registration()
             ->brandName('User Panel')
             ->darkMode(false)
             ->brandLogo(asset('images/pingo-full.png'))
