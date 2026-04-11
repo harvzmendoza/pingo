@@ -1,44 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Contact;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ContactPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:Contact');
     }
 
-    public function view(User $user, Contact $contact): bool
+    public function view(AuthUser $authUser, Contact $contact): bool
     {
-        return $user->id === $contact->user_id;
+        return $authUser->can('View:Contact');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('Create:Contact');
     }
 
-    public function update(User $user, Contact $contact): bool
+    public function update(AuthUser $authUser, Contact $contact): bool
     {
-        return $user->id === $contact->user_id;
+        return $authUser->can('Update:Contact');
     }
 
-    public function delete(User $user, Contact $contact): bool
+    public function delete(AuthUser $authUser, Contact $contact): bool
     {
-        return $user->id === $contact->user_id;
+        return $authUser->can('Delete:Contact');
     }
 
-    public function restore(User $user, Contact $contact): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return $user->id === $contact->user_id;
+        return $authUser->can('DeleteAny:Contact');
     }
 
-    public function forceDelete(User $user, Contact $contact): bool
+    public function restore(AuthUser $authUser, Contact $contact): bool
     {
-        return $user->id === $contact->user_id;
+        return $authUser->can('Restore:Contact');
     }
+
+    public function forceDelete(AuthUser $authUser, Contact $contact): bool
+    {
+        return $authUser->can('ForceDelete:Contact');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:Contact');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:Contact');
+    }
+
+    public function replicate(AuthUser $authUser, Contact $contact): bool
+    {
+        return $authUser->can('Replicate:Contact');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:Contact');
+    }
+
 }

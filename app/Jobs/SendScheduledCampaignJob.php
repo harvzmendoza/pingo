@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\SmsLimitReachedException;
 use App\Models\Contact;
 use App\Models\Message;
 use App\Services\MessageDispatchService;
@@ -48,6 +49,10 @@ class SendScheduledCampaignJob implements ShouldQueue
                 ->pluck('id');
         }
 
-        $messageDispatchService->sendToContacts($message, $contactIds);
+        try {
+            $messageDispatchService->sendToContacts($message, $contactIds);
+        } catch (SmsLimitReachedException) {
+            return;
+        }
     }
 }

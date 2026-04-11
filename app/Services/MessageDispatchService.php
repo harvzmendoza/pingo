@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Enums\MessageLogStatus;
+use App\Exceptions\SmsLimitReachedException;
 use App\Models\Contact;
 use App\Models\Message;
 use App\Models\MessageLog;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -15,6 +17,7 @@ class MessageDispatchService
     public function __construct(
         private readonly SmsService $smsService,
         private readonly PhoneNumberService $phoneNumberService,
+        private readonly SubscriptionService $subscriptionService,
     ) {}
 
     /**
@@ -23,6 +26,16 @@ class MessageDispatchService
      */
     public function sendToContacts(Message $message, array|Collection $contactIds): array
     {
+        $user = User::query()->find($message->user_id);
+        if (! $user instanceof User) {
+            return ['sent' => 0, 'failed' => 0, 'skipped' => 0];
+        }
+
+        $subscription = $this->subscriptionService->getCurrentSubscription($user);
+        if (! $subscription) {
+            throw SmsLimitReachedException::withoutActiveSubscription();
+        }
+
         $ids = collect($contactIds)->unique()->values();
         $contacts = Contact::query()
             ->where('user_id', $message->user_id)
@@ -35,6 +48,13 @@ class MessageDispatchService
         $skipped = $ids->count() - $contacts->count();
 
         foreach ($ids as $id) {
+            if (! $this->subscriptionService->canSendSms($user)) {
+                throw SmsLimitReachedException::forCurrentPlan(
+                    $subscription->sms_used,
+                    $subscription->plan->sms_limit,
+                );
+            }
+
             $contact = $contacts->get($id);
             if (! $contact) {
                 continue;
@@ -71,6 +91,8 @@ class MessageDispatchService
             );
 
             if ($success) {
+                $this->subscriptionService->incrementUsage($user);
+                $subscription->refresh();
                 $sent++;
             } else {
                 $failed++;

@@ -4,6 +4,7 @@ namespace App\Filament\User\Pages;
 
 use App\Enums\MessageLogStatus;
 use App\Enums\MessageType;
+use App\Exceptions\SmsLimitReachedException;
 use App\Jobs\SendScheduledCampaignJob;
 use App\Models\Contact;
 use App\Models\Message;
@@ -219,12 +220,22 @@ class SendCampaign extends Page
             return;
         }
 
-        $result = $sendCampaignService->send(
-            user: $user,
-            content: (string) $state['content'],
-            contactIds: $state['contact_ids'] ?? [],
-            sendToAllContacts: (bool) ($state['send_to_all_contacts'] ?? false),
-        );
+        try {
+            $result = $sendCampaignService->send(
+                user: $user,
+                content: (string) $state['content'],
+                contactIds: $state['contact_ids'] ?? [],
+                sendToAllContacts: (bool) ($state['send_to_all_contacts'] ?? false),
+            );
+        } catch (SmsLimitReachedException $exception) {
+            Notification::make()
+                ->danger()
+                ->title('Unable to send campaign')
+                ->body($exception->getMessage())
+                ->send();
+
+            return;
+        }
 
         Notification::make()
             ->success()
