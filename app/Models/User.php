@@ -82,4 +82,20 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->hasOne(Subscription::class);
     }
+
+    /**
+     * @return HasMany<SubscriptionRequest, $this>
+     */
+    public function subscriptionRequests(): HasMany
+    {
+        return $this->hasMany(SubscriptionRequest::class);
+    }
+
+    /**
+     * @return HasMany<SubscriptionHistory, $this>
+     */
+    public function subscriptionHistories(): HasMany
+    {
+        return $this->hasMany(SubscriptionHistory::class);
+    }
 }

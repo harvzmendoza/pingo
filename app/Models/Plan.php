@@ -26,4 +26,9 @@ class Plan extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+
+    public function isFree(): bool
+    {
+        return (float) $this->price <= 0.0;
+    }
 }

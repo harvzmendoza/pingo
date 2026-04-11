@@ -17,7 +17,7 @@ class PlanSeeder extends Seeder
                 'name' => 'Free',
                 'price' => 0,
                 'sms_limit' => 50,
-                'description' => '3-day free trial with up to 50 SMS per day (resets daily).',
+                'description' => 'One-time 3-day trial. Up to 50 SMS per day; allowance auto-renews each calendar day until the trial ends.',
             ],
             [
                 'name' => 'Starter',

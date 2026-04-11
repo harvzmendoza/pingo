@@ -2,13 +2,23 @@
 
 namespace App\Services;
 
+use App\Enums\SubscriptionRequestStatus;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\SubscriptionHistory;
+use App\Models\SubscriptionRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
 {
+    /**
+     * One-time free trial length. After this period the subscription expires unless the user upgrades.
+     */
+    public const FREE_TRIAL_DAYS = 3;
+
     public function getCurrentPlan(User $user): ?Plan
     {
         return $this->getCurrentSubscription($user)?->plan;
@@ -39,7 +49,10 @@ class SubscriptionService
         $subscription->increment('sms_used', $count);
     }
 
-    public function subscribe(User $user, Plan $plan): Subscription
+    /**
+     * Apply an admin-approved plan to the user's active subscription row.
+     */
+    public function activateApprovedPlan(User $user, Plan $plan, ?Carbon $subscriptionEndsAt = null): Subscription
     {
         $today = $this->today();
 
@@ -50,9 +63,81 @@ class SubscriptionService
                 'sms_used' => 0,
                 'sms_usage_date' => $today->toDateString(),
                 'starts_at' => now(),
-                'ends_at' => null,
+                'ends_at' => $subscriptionEndsAt,
             ],
         );
+    }
+
+    /**
+     * Expiration instant for the free-trial subscription row ({@see self::FREE_TRIAL_DAYS}).
+     */
+    public function freeTrialSubscriptionEndsAt(): Carbon
+    {
+        return now()->addDays(self::FREE_TRIAL_DAYS);
+    }
+
+    /**
+     * Start the free trial immediately (no admin request). Allowed only once per user (tracked via history).
+     */
+    public function applyInstantFreeTrial(User $user, Plan $plan): bool
+    {
+        if (! $plan->isFree()) {
+            return false;
+        }
+
+        if ($this->userHasUsedFreePlan($user)) {
+            return false;
+        }
+
+        DB::transaction(function () use ($user, $plan): void {
+            SubscriptionHistory::query()
+                ->where('user_id', $user->id)
+                ->whereNull('ended_at')
+                ->update(['ended_at' => now()]);
+
+            $this->activateApprovedPlan(
+                user: $user,
+                plan: $plan,
+                subscriptionEndsAt: $this->freeTrialSubscriptionEndsAt(),
+            );
+
+            SubscriptionHistory::query()->create([
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'subscription_request_id' => null,
+                'started_at' => now(),
+                'ended_at' => null,
+            ]);
+        });
+
+        return true;
+    }
+
+    public function userHasPendingSubscriptionRequest(User $user): bool
+    {
+        return SubscriptionRequest::query()
+            ->where('user_id', $user->id)
+            ->where('status', SubscriptionRequestStatus::Pending)
+            ->exists();
+    }
+
+    /**
+     * Free trial / zero-price plan can only be consumed once per user (by history).
+     */
+    public function userHasUsedFreePlan(User $user): bool
+    {
+        $freePlanIds = Plan::query()
+            ->where('price', '<=', 0)
+            ->pluck('id');
+
+        if ($freePlanIds->isEmpty()) {
+            return false;
+        }
+
+        return SubscriptionHistory::query()
+            ->where('user_id', $user->id)
+            ->whereIn('plan_id', $freePlanIds)
+            ->exists();
     }
 
     public function getCurrentSubscription(User $user): ?Subscription
@@ -71,7 +156,8 @@ class SubscriptionService
     }
 
     /**
-     * When the app-local calendar day changes, reset usage so limits apply per day for the current plan.
+     * Auto-renew the daily SMS allowance: when the app-local calendar day changes, reset the sms_used counter.
+     * Applies to every active subscription (including the 3-day free trial) until the subscription ends.
      */
     public function syncDailySmsUsage(Subscription $subscription): Subscription
     {

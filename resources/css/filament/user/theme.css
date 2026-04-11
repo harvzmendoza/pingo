@@ -145,4 +145,59 @@
     .sidebar-signout-btn {
         @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700;
     }
+
+    /* Sidebar subscription snapshot */
+
+    .sidebar-subscription-card {
+        @apply relative overflow-hidden rounded-2xl border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-fuchsia-50/40 p-4 shadow-md shadow-violet-500/10 ring-1 ring-white/60;
+    }
+
+    .sidebar-subscription-card::before {
+        content: '';
+        @apply pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-violet-400/15 blur-2xl;
+    }
+
+    .sidebar-subscription-kicker {
+        @apply flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-600;
+    }
+
+    .sidebar-subscription-kicker-dot {
+        @apply h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500 shadow-sm shadow-violet-400/50;
+    }
+
+    .sidebar-subscription-title-row {
+        @apply mt-2 flex items-start justify-between gap-2;
+    }
+
+    .sidebar-subscription-plan {
+        @apply inline-flex max-w-full items-center rounded-lg bg-white/80 px-2.5 py-1 text-sm font-bold text-gray-900 shadow-sm ring-1 ring-violet-100;
+    }
+
+    .sidebar-subscription-meta {
+        @apply mt-3 space-y-1.5 text-xs text-gray-600;
+    }
+
+    .sidebar-subscription-progress {
+        @apply mt-3 h-2 overflow-hidden rounded-full bg-violet-100/80;
+    }
+
+    .sidebar-subscription-progress-bar {
+        @apply h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300;
+    }
+
+    .sidebar-subscription-hint {
+        @apply mt-2 text-[10px] leading-relaxed text-gray-500;
+    }
+
+    .sidebar-subscription-trial {
+        @apply mt-2 rounded-lg border border-amber-200/80 bg-amber-50/90 px-2.5 py-1.5 text-[10px] font-medium leading-snug text-amber-900;
+    }
+
+    .sidebar-subscription-cta {
+        @apply mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-3 py-2.5 text-xs font-bold text-white shadow-lg shadow-violet-500/25 transition hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-violet-500/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2;
+    }
+
+    .sidebar-subscription-cta svg {
+        @apply h-3.5 w-3.5 shrink-0 opacity-90;
+    }
 }

@@ -8,7 +8,7 @@ class SmsLimitReachedException extends Exception
 {
     public static function withoutActiveSubscription(): self
     {
-        return new self('No active subscription found. Please choose a plan before sending SMS.');
+        return new self('No active subscription found. Submit a subscription request from Billing → Subscription and wait for admin approval before sending SMS.');
     }
 
     public static function forCurrentPlan(int $smsUsed, int $smsLimit): self

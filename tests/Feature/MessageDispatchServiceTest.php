@@ -20,6 +20,12 @@ class MessageDispatchServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,7 +52,7 @@ class MessageDispatchServiceTest extends TestCase
             'price' => 499,
             'sms_limit' => 10,
         ]);
-        app(SubscriptionService::class)->subscribe($user, $plan);
+        app(SubscriptionService::class)->activateApprovedPlan($user, $plan);
         $contact = Contact::factory()->for($user)->create();
         Contact::factory()->for($otherUser)->create();
 

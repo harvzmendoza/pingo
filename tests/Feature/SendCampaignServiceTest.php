@@ -4,9 +4,11 @@ namespace Tests\Feature;
 
 use App\Enums\MessageType;
 use App\Models\Contact;
+use App\Models\Plan;
 use App\Models\User;
 use App\Services\SendCampaignService;
 use App\Services\Sms\Contracts\SmsProviderContract;
+use App\Services\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -36,6 +38,13 @@ class SendCampaignServiceTest extends TestCase
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
 
+        $plan = Plan::query()->create([
+            'name' => 'Starter',
+            'price' => 499,
+            'sms_limit' => 100,
+        ]);
+        app(SubscriptionService::class)->activateApprovedPlan($user, $plan);
+
         $contactA = Contact::factory()->for($user)->create();
         $contactB = Contact::factory()->for($user)->create();
         Contact::factory()->for($otherUser)->create();
@@ -61,6 +70,13 @@ class SendCampaignServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
+
+        $plan = Plan::query()->create([
+            'name' => 'Starter',
+            'price' => 499,
+            'sms_limit' => 100,
+        ]);
+        app(SubscriptionService::class)->activateApprovedPlan($user, $plan);
 
         Contact::factory()->count(3)->for($user)->create();
         Contact::factory()->count(2)->for($otherUser)->create();
