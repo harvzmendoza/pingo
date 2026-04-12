@@ -1,114 +1,153 @@
 <x-filament-panels::page>
-    <div class="grid gap-4 md:grid-cols-3">
-        @foreach ($this->getPlans() as $plan)
-            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">{{ $plan->name }}</h3>
-                        <p class="mt-1 text-sm text-gray-500">
-                            {{ $plan->description ?: 'Simple SMS plan for your business.' }}
-                        </p>
-                    </div>
-                    <div class="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
-                        {{ number_format((float) $plan->price, 2) === '0.00' ? 'Free Trial' : 'Paid' }}
-                    </div>
-                </div>
-
-                <div class="mt-5">
-                    <p class="text-2xl font-bold text-gray-900">
-                        {{ (float) $plan->price <= 0 ? 'Free' : '₱' . number_format((float) $plan->price, 2) }}
-                    </p>
-                    <p class="mt-1 text-sm text-gray-600">{{ number_format($plan->sms_limit) }} SMS per day</p>
-                </div>
-
-                @if ((float) $plan->price <= 0)
-                    <x-filament::button
-                        class="mt-5 w-full"
-                        color="primary"
-                        wire:click="startFreeTrial({{ $plan->id }})"
-                    >
-                        Start free trial
-                    </x-filament::button>
-                    <p class="mt-2 text-center text-xs text-gray-500">
-                        One-time offer: {{ \App\Services\SubscriptionService::FREE_TRIAL_DAYS }} days. SMS allowance auto-renews each calendar day until the trial ends.
-                    </p>
-                @else
-                    <x-filament::button
-                        class="mt-5 w-full"
-                        color="primary"
-                        wire:click="mountAction('requestSubscription', { plan_id: {{ $plan->id }} })"
-                    >
-                        Subscribe
-                    </x-filament::button>
-                @endif
+    <div class="subscription-page">
+        <header class="subscription-page-hero">
+            <div class="subscription-page-hero-inner">
+                <p class="subscription-page-hero-kicker">Billing & plans</p>
+                <h1 class="subscription-page-hero-title">Choose how you send</h1>
+                <p class="subscription-page-hero-text">
+                    Start with a one-time free trial or subscribe with payment proof for review. Paid plans require admin approval after you submit your screenshot.
+                </p>
             </div>
-        @endforeach
-    </div>
+        </header>
 
-    <div class="mt-10 space-y-2">
-        <h2 class="text-lg font-semibold text-gray-900">Your requests</h2>
-        <p class="text-sm text-gray-600">Payment submissions waiting for admin approval.</p>
-        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Plan</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Submitted</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($this->getMyRequests() as $req)
-                        <tr>
-                            <td class="px-4 py-3 text-gray-900">{{ $req->plan?->name }}</td>
-                            <td class="px-4 py-3">
-                                <span @class([
-                                    'inline-flex rounded-full px-2 py-0.5 text-xs font-semibold',
-                                    'bg-amber-50 text-amber-800' => $req->status->value === 'pending',
-                                    'bg-emerald-50 text-emerald-800' => $req->status->value === 'approved',
-                                    'bg-rose-50 text-rose-800' => $req->status->value === 'rejected',
-                                ])>
-                                    {{ ucfirst($req->status->value) }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-gray-600">{{ $req->created_at->format('M j, Y g:i A') }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="px-4 py-6 text-center text-gray-500">No requests yet.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <div class="subscription-plans-grid">
+            @foreach ($this->getPlans() as $plan)
+                @php
+                    $isFree = (float) $plan->price <= 0;
+                @endphp
+                <article @class(['subscription-plan-card', 'subscription-plan-card--free' => $isFree])>
+                    <div class="subscription-plan-card-inner">
+                        <div class="subscription-plan-card-head">
+                            <div class="min-w-0 flex-1">
+                                <h2 class="subscription-plan-name">{{ $plan->name }}</h2>
+                                <p class="subscription-plan-desc">
+                                    {{ $plan->description ?: 'Simple SMS plan for your business.' }}
+                                </p>
+                            </div>
+                            <span @class([
+                                'subscription-plan-badge',
+                                'subscription-plan-badge--free' => $isFree,
+                            ])>
+                                {{ $isFree ? 'Free trial' : 'Paid' }}
+                            </span>
+                        </div>
 
-    <div class="mt-10 space-y-2">
-        <h2 class="text-lg font-semibold text-gray-900">Subscription history</h2>
-        <p class="text-sm text-gray-600">When each plan period started and ended.</p>
-        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Plan</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Started</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Ended</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($this->getMyHistory() as $row)
-                        <tr>
-                            <td class="px-4 py-3 text-gray-900">{{ $row->plan?->name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $row->started_at->format('M j, Y g:i A') }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $row->ended_at ? $row->ended_at->format('M j, Y g:i A') : '—' }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="px-4 py-6 text-center text-gray-500">No history yet. After an admin approves a request, your periods appear here.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        <div class="subscription-plan-price-block">
+                            <p class="subscription-plan-price">
+                                {{ $isFree ? 'Free' : '₱' . number_format((float) $plan->price, 2) }}
+                            </p>
+                            <p class="subscription-plan-price-note">
+                                {{ number_format($plan->sms_limit) }} SMS per day · resets daily
+                            </p>
+                        </div>
+
+                        @if ($isFree)
+                            <button
+                                type="button"
+                                class="subscription-plan-cta"
+                                wire:click="startFreeTrial({{ $plan->id }})"
+                            >
+                                Start free trial
+                            </button>
+                            <p class="subscription-plan-footnote">
+                                One-time {{ \App\Services\SubscriptionService::FREE_TRIAL_DAYS }}-day trial. Your SMS allowance auto-renews each calendar day until the trial ends.
+                            </p>
+                        @else
+                            <button
+                                type="button"
+                                class="subscription-plan-cta--outline"
+                                wire:click="mountAction('requestSubscription', { plan_id: {{ $plan->id }} })"
+                            >
+                                Subscribe
+                            </button>
+                            <p class="subscription-plan-footnote">
+                                Upload payment proof — we’ll activate your plan after approval.
+                            </p>
+                        @endif
+                    </div>
+                </article>
+            @endforeach
         </div>
+
+        <section class="subscription-section" aria-labelledby="subscription-requests-heading">
+            <div class="subscription-section-header">
+                <div>
+                    <h2 id="subscription-requests-heading" class="subscription-section-title">Your requests</h2>
+                    <p class="subscription-section-desc">Track payment submissions waiting for admin review.</p>
+                </div>
+            </div>
+            <div class="subscription-panel">
+                <div class="subscription-table-wrap">
+                    <table class="subscription-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Plan</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($this->getMyRequests() as $req)
+                                <tr>
+                                    <td class="font-medium text-gray-900">{{ $req->plan?->name }}</td>
+                                    <td>
+                                        <span @class([
+                                            'subscription-status-pill',
+                                            'subscription-status-pill--pending' => $req->status->value === 'pending',
+                                            'subscription-status-pill--approved' => $req->status->value === 'approved',
+                                            'subscription-status-pill--rejected' => $req->status->value === 'rejected',
+                                        ])>
+                                            {{ ucfirst($req->status->value) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-gray-600">{{ $req->created_at->format('M j, Y g:i A') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="subscription-table-empty">No requests yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="subscription-section" aria-labelledby="subscription-history-heading">
+            <div class="subscription-section-header">
+                <div>
+                    <h2 id="subscription-history-heading" class="subscription-section-title">Subscription history</h2>
+                    <p class="subscription-section-desc">When each plan period started and ended (including your free trial).</p>
+                </div>
+            </div>
+            <div class="subscription-panel">
+                <div class="subscription-table-wrap">
+                    <table class="subscription-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Plan</th>
+                                <th scope="col">Started</th>
+                                <th scope="col">Ended</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($this->getMyHistory() as $row)
+                                <tr>
+                                    <td class="font-medium text-gray-900">{{ $row->plan?->name }}</td>
+                                    <td class="text-gray-600">{{ $row->started_at->format('M j, Y g:i A') }}</td>
+                                    <td class="text-gray-600">{{ $row->ended_at ? $row->ended_at->format('M j, Y g:i A') : '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="subscription-table-empty">
+                                        No history yet. After you start a trial or an admin approves a plan, periods appear here.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </div>
 </x-filament-panels::page>

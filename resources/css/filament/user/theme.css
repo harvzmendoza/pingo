@@ -200,4 +200,168 @@
     .sidebar-subscription-cta svg {
         @apply h-3.5 w-3.5 shrink-0 opacity-90;
     }
+
+    /* Subscription plans page */
+
+    .subscription-page {
+        @apply space-y-10 pb-8;
+    }
+
+    .subscription-page-hero {
+        @apply relative overflow-hidden rounded-2xl border border-violet-200/70 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-6 text-white shadow-lg shadow-violet-500/20 md:p-8;
+    }
+
+    .subscription-page-hero::after {
+        content: '';
+        @apply pointer-events-none absolute -bottom-12 right-0 h-40 w-40 rounded-full bg-white/10 blur-3xl;
+    }
+
+    .subscription-page-hero-inner {
+        @apply relative z-10 max-w-2xl space-y-2;
+    }
+
+    .subscription-page-hero-kicker {
+        @apply text-xs font-bold uppercase tracking-[0.2em] text-violet-100/95;
+    }
+
+    .subscription-page-hero-title {
+        @apply text-2xl font-extrabold tracking-tight text-white md:text-3xl;
+    }
+
+    .subscription-page-hero-text {
+        @apply text-sm leading-relaxed text-violet-50/95 md:text-base;
+    }
+
+    .subscription-plans-grid {
+        @apply grid gap-5 sm:grid-cols-2 xl:grid-cols-3;
+    }
+
+    .subscription-plan-card {
+        @apply relative flex flex-col overflow-hidden rounded-2xl border border-violet-200/80 bg-gradient-to-b from-white via-white to-violet-50/40 p-6 shadow-md shadow-violet-500/10 ring-1 ring-white/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/15;
+    }
+
+    .subscription-plan-card--free {
+        @apply border-fuchsia-300/60 ring-2 ring-fuchsia-400/25;
+    }
+
+    .subscription-plan-card--free::before {
+        content: '';
+        @apply pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gradient-to-br from-fuchsia-400/20 to-violet-400/20 blur-2xl;
+    }
+
+    .subscription-plan-card-inner {
+        @apply relative z-10 flex flex-1 flex-col;
+    }
+
+    .subscription-plan-card-head {
+        @apply flex items-start justify-between gap-3;
+    }
+
+    .subscription-plan-name {
+        @apply text-xl font-bold tracking-tight text-gray-900;
+    }
+
+    .subscription-plan-desc {
+        @apply mt-2 text-sm leading-relaxed text-gray-600;
+    }
+
+    .subscription-plan-badge {
+        @apply shrink-0 rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800;
+    }
+
+    .subscription-plan-badge--free {
+        @apply bg-gradient-to-r from-fuchsia-100 to-violet-100 text-fuchsia-900 ring-1 ring-fuchsia-200/60;
+    }
+
+    .subscription-plan-price-block {
+        @apply mt-6 border-t border-violet-100/80 pt-5;
+    }
+
+    .subscription-plan-price {
+        @apply text-3xl font-extrabold tracking-tight text-gray-900;
+    }
+
+    .subscription-plan-price-note {
+        @apply mt-1 text-sm font-medium text-violet-700/90;
+    }
+
+    .subscription-plan-cta {
+        @apply mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/25 transition hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-violet-500/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2;
+    }
+
+    .subscription-plan-cta--outline {
+        @apply mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm font-bold text-violet-800 shadow-sm ring-1 ring-violet-100 transition hover:border-violet-300 hover:bg-gradient-to-r hover:from-violet-50 hover:to-fuchsia-50 hover:text-violet-900 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2;
+    }
+
+    .subscription-plan-footnote {
+        @apply mt-3 text-center text-xs leading-relaxed text-gray-500;
+    }
+
+    .subscription-section {
+        @apply space-y-4;
+    }
+
+    .subscription-section-header {
+        @apply flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between;
+    }
+
+    .subscription-section-title {
+        @apply text-lg font-bold tracking-tight text-gray-900;
+    }
+
+    .subscription-section-desc {
+        @apply max-w-xl text-sm text-gray-600;
+    }
+
+    .subscription-panel {
+        @apply overflow-hidden rounded-2xl border border-violet-200/70 bg-white shadow-md shadow-violet-500/10 ring-1 ring-violet-50;
+    }
+
+    .subscription-table-wrap {
+        @apply overflow-x-auto;
+    }
+
+    .subscription-table {
+        @apply min-w-full divide-y divide-violet-100 text-sm;
+    }
+
+    .subscription-table thead {
+        @apply bg-gradient-to-r from-violet-50/90 to-fuchsia-50/80;
+    }
+
+    .subscription-table th {
+        @apply px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-violet-900/80;
+    }
+
+    .subscription-table tbody {
+        @apply divide-y divide-violet-50;
+    }
+
+    .subscription-table td {
+        @apply px-4 py-3.5 text-gray-700;
+    }
+
+    .subscription-table tbody tr {
+        @apply transition hover:bg-violet-50/40;
+    }
+
+    .subscription-table-empty {
+        @apply px-4 py-10 text-center text-sm text-gray-500;
+    }
+
+    .subscription-status-pill {
+        @apply inline-flex rounded-full px-2.5 py-1 text-xs font-bold;
+    }
+
+    .subscription-status-pill--pending {
+        @apply bg-amber-100 text-amber-900 ring-1 ring-amber-200/60;
+    }
+
+    .subscription-status-pill--approved {
+        @apply bg-emerald-100 text-emerald-900 ring-1 ring-emerald-200/60;
+    }
+
+    .subscription-status-pill--rejected {
+        @apply bg-rose-100 text-rose-900 ring-1 ring-rose-200/60;
+    }
 }

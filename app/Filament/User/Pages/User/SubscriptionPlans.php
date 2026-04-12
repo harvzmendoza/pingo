@@ -25,13 +25,18 @@ class SubscriptionPlans extends Page
 {
     protected static string|UnitEnum|null $navigationGroup = 'Billing';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
     protected static ?string $navigationLabel = 'Subscription';
 
     protected static ?string $title = 'Subscription Plans';
+
+    /**
+     * Hero in the custom view carries the main title; hide the default page header when heading is empty.
+     */
+    protected ?string $heading = '';
 
     protected string $view = 'filament.user.pages.user.subscription-plans';
 
