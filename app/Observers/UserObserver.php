@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class UserObserver
 {
@@ -12,6 +13,8 @@ class UserObserver
     public function created(User $user): void
     {
         if (! $user->roles()->exists()) {
+            $guard = config('auth.defaults.guard', 'web');
+            Role::findOrCreate('user', $guard);
             $user->assignRole('user');
         }
     }

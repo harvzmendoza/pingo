@@ -1,10 +1,12 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/guava/calendar/resources/css/theme.css';
 
 @source '../../../../app/Filament/User/**/*';
 @source '../../../../app/Livewire/Filament/User/**/*';
 @source '../../../../resources/views/filament/user/**/*';
 @source '../../../../resources/views/livewire/filament/user/**/*';
 @source '../../../../resources/views/filament/user/topbar/**/*';
+@source '../../../../vendor/guava/calendar/resources/**/*';
 
 
 @layer components {

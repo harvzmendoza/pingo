@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\User\Pages\BusinessOnboarding;
 use App\Filament\User\Pages\Dashboard;
+use App\Filament\User\Pages\MessagesCalendar;
 use App\Filament\User\Widgets\CampaignVolumeChart;
 use App\Filament\User\Widgets\ContactsGrowthChart;
 use App\Filament\User\Widgets\DeliveryStatusSplitChart;
@@ -48,6 +49,7 @@ class UserPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
                 BusinessOnboarding::class,
+                MessagesCalendar::class,
             ])
             ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\Filament\User\Widgets')
             ->widgets([
