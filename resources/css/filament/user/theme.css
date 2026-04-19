@@ -367,6 +367,30 @@
         @apply mx-auto max-w-3xl space-y-8 pb-10;
     }
 
+    .send-campaign-wizard.send-campaign-wizard--full {
+        @apply max-w-none w-full;
+    }
+
+    .send-campaign-wizard--full .send-campaign-wizard-hero-inner {
+        @apply max-w-none;
+    }
+
+    .send-campaign-wizard-finishing {
+        @apply fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-white/95 px-6 text-center backdrop-blur-sm;
+    }
+
+    .send-campaign-wizard-finishing-spinner {
+        @apply h-12 w-12 animate-spin rounded-full border-4 border-violet-200 border-t-violet-600;
+    }
+
+    .send-campaign-wizard-finishing-title {
+        @apply text-lg font-bold text-gray-900;
+    }
+
+    .send-campaign-wizard-finishing-text {
+        @apply max-w-md text-sm text-gray-600;
+    }
+
     .send-campaign-wizard-hero {
         @apply overflow-hidden rounded-2xl border border-violet-200/80 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg shadow-violet-500/25 sm:p-8;
     }

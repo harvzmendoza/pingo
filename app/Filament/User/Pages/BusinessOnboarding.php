@@ -2,27 +2,22 @@
 
 namespace App\Filament\User\Pages;
 
+use App\Models\Contact;
+use App\Models\Plan;
 use App\Models\User;
-use Filament\Actions\Action;
+use App\Services\SubscriptionService;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Actions;
-use Filament\Schemas\Components\EmbeddedSchema;
-use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Wizard;
-use Filament\Schemas\Components\Wizard\Step;
-use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use UnitEnum;
 
-/**
- * @property-read Schema $form
- */
 class BusinessOnboarding extends Page
 {
     protected static string|UnitEnum|null $navigationGroup = null;
@@ -37,112 +32,289 @@ class BusinessOnboarding extends Page
 
     protected static ?string $title = 'Business Setup';
 
-    protected string $view = 'filament-panels::pages.page';
+    protected ?string $heading = '';
+
+    protected string $view = 'filament.user.pages.business-onboarding-wizard';
+
+    protected Width|string|null $maxContentWidth = Width::Full;
+
+    public int $wizardStep = 1;
+
+    public string $business_name = '';
+
+    public string $business_description = '';
+
+    public string $business_category = '';
 
     /**
-     * @var array<string, mixed> | null
+     * @var list<array{name: string, phone_number: string, email: string}>
      */
-    public ?array $data = [];
+    public array $contactRows = [];
+
+    public bool $startFreeTrial = true;
+
+    public bool $isFinishing = false;
 
     public function mount(): void
     {
         /** @var User|null $user */
         $user = Filament::auth()->user();
 
-        $this->form->fill([
-            'business_name' => $user?->business_name,
-            'business_description' => $user?->business_description,
-            'business_category' => $user?->business_category,
-        ]);
+        $this->business_name = $user?->business_name ?? '';
+        $this->business_description = $user?->business_description ?? '';
+        $this->business_category = $user?->business_category ?? '';
+        $this->contactRows = [
+            ['name' => '', 'phone_number' => '', 'email' => ''],
+        ];
+        $this->startFreeTrial = true;
+        $this->wizardStep = 1;
+        $this->isFinishing = false;
     }
 
-    public function content(Schema $schema): Schema
+    /**
+     * @return array<string, string>
+     */
+    public function getBusinessCategoryOptions(): array
     {
-        return $schema
-            ->components([
-                $this->getFormContentComponent(),
-            ]);
+        return [
+            'restaurant' => 'Restaurant',
+            'salon' => 'Salon / Barbershop',
+            'clinic' => 'Clinic / Dental',
+            'retail' => 'Retail / Boutique',
+            'services' => 'Services',
+            'fitness' => 'Fitness / Gym',
+            'education' => 'Education',
+            'other' => 'Other',
+        ];
     }
 
-    protected function getFormContentComponent(): Form
+    public function getBusinessCategoryLabel(): string
     {
-        return Form::make([EmbeddedSchema::make('form')])
-            ->id('business-onboarding-form')
-            ->livewireSubmitHandler('save')
-            ->footer([
-                Actions::make([
-                    Action::make('save')
-                        ->label('Complete setup')
-                        ->icon(Heroicon::OutlinedCheckCircle)
-                        ->submit('save')
-                        ->color('primary'),
-                ])->fullWidth(),
-            ]);
+        $options = $this->getBusinessCategoryOptions();
+
+        return $options[$this->business_category] ?? '—';
     }
 
-    public function form(Schema $schema): Schema
+    public function getFilledContactRowCount(): int
     {
-        return $schema
-            ->components([
-                Wizard::make([
-                    Step::make('Business details')
-                        ->schema([
-                            TextInput::make('business_name')
-                                ->label('Business name')
-                                ->required()
-                                ->maxLength(255),
-                            Textarea::make('business_description')
-                                ->label('Business description')
-                                ->rows(4)
-                                ->required()
-                                ->maxLength(1000),
-                        ])
-                        ->columns(1),
-                    Step::make('Business category')
-                        ->schema([
-                            Select::make('business_category')
-                                ->label('Category')
-                                ->required()
-                                ->options([
-                                    'restaurant' => 'Restaurant',
-                                    'salon' => 'Salon / Barbershop',
-                                    'clinic' => 'Clinic / Dental',
-                                    'retail' => 'Retail / Boutique',
-                                    'services' => 'Services',
-                                    'fitness' => 'Fitness / Gym',
-                                    'education' => 'Education',
-                                    'other' => 'Other',
-                                ])
-                                ->searchable(),
-                        ])
-                        ->columns(1),
-                ])->columnSpanFull(),
-            ])
-            ->statePath('data');
+        $count = 0;
+
+        foreach ($this->contactRows as $row) {
+            if ($this->contactRowHasAnyInput($row) && $this->contactRowIsComplete($row)) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
-    public function save(): void
+    public function canOfferFreeTrial(): bool
     {
-        $state = $this->form->getState();
-
+        /** @var User|null $user */
         $user = Filament::auth()->user();
+
+        if (! $user instanceof User) {
+            return false;
+        }
+
+        $subscriptionService = app(SubscriptionService::class);
+
+        if ($subscriptionService->userHasUsedFreePlan($user)) {
+            return false;
+        }
+
+        $freePlan = Plan::query()->where('price', '<=', 0)->first();
+
+        if (! $freePlan instanceof Plan) {
+            return false;
+        }
+
+        $subscription = $subscriptionService->getCurrentSubscription($user);
+
+        if ($subscription && ! $subscription->plan->isFree()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function addContactRow(): void
+    {
+        if (count($this->contactRows) >= 25) {
+            return;
+        }
+
+        $this->contactRows[] = ['name' => '', 'phone_number' => '', 'email' => ''];
+    }
+
+    public function removeContactRow(int $index): void
+    {
+        if (count($this->contactRows) <= 1) {
+            return;
+        }
+
+        unset($this->contactRows[$index]);
+        $this->contactRows = array_values($this->contactRows);
+    }
+
+    public function nextStep(): void
+    {
+        $this->validateStep($this->wizardStep);
+
+        if ($this->wizardStep < 4) {
+            $this->wizardStep++;
+        }
+    }
+
+    public function previousStep(): void
+    {
+        if ($this->wizardStep > 1) {
+            $this->wizardStep--;
+        }
+    }
+
+    public function goToStep(int $step): void
+    {
+        if ($step < 1 || $step > 4 || $step > $this->wizardStep || $this->isFinishing) {
+            return;
+        }
+
+        $this->wizardStep = $step;
+    }
+
+    public function finishOnboarding(): void
+    {
+        if ($this->isFinishing) {
+            return;
+        }
+
+        $this->validateStep(1);
+        $this->validateStep(2);
+        $this->validateStep(3);
+
+        /** @var User|null $user */
+        $user = Filament::auth()->user();
+
         if (! $user instanceof User) {
             return;
         }
 
-        $user->forceFill([
-            'business_name' => $state['business_name'],
-            'business_description' => $state['business_description'],
-            'business_category' => $state['business_category'],
-            'onboarding_completed_at' => now(),
-        ])->save();
+        DB::transaction(function () use ($user): void {
+            $user->forceFill([
+                'business_name' => $this->business_name,
+                'business_description' => $this->business_description,
+                'business_category' => $this->business_category,
+                'onboarding_completed_at' => now(),
+            ])->save();
+
+            foreach ($this->contactRows as $row) {
+                if (! $this->contactRowHasAnyInput($row)) {
+                    continue;
+                }
+
+                if (! $this->contactRowIsComplete($row)) {
+                    continue;
+                }
+
+                Contact::query()->create([
+                    'user_id' => $user->id,
+                    'name' => trim($row['name']),
+                    'phone_number' => trim($row['phone_number']),
+                    'email' => filled($row['email'] ?? null) ? trim((string) $row['email']) : null,
+                ]);
+            }
+        });
+
+        if ($this->canOfferFreeTrial() && $this->startFreeTrial) {
+            $freePlan = Plan::query()->where('price', '<=', 0)->first();
+
+            if ($freePlan instanceof Plan) {
+                $applied = app(SubscriptionService::class)->applyInstantFreeTrial($user, $freePlan);
+
+                if (! $applied) {
+                    Notification::make()
+                        ->warning()
+                        ->title('Free trial unavailable')
+                        ->body('Your account is set up, but the free trial could not be started automatically. You can pick a plan from Billing.')
+                        ->send();
+                }
+            }
+        }
 
         Notification::make()
             ->success()
             ->title('Setup completed')
-            ->body('Your business profile is ready. Welcome to your dashboard.')
+            ->body('Your business profile is ready.')
             ->send();
 
+        $this->isFinishing = true;
+    }
+
+    public function redirectToDashboard(): void
+    {
         $this->redirect(Dashboard::getUrl(panel: 'user'), navigate: true);
+    }
+
+    /**
+     * @param  array{name?: string, phone_number?: string, email?: string}  $row
+     */
+    protected function contactRowHasAnyInput(array $row): bool
+    {
+        return filled($row['name'] ?? null)
+            || filled($row['phone_number'] ?? null)
+            || filled($row['email'] ?? null);
+    }
+
+    /**
+     * @param  array{name?: string, phone_number?: string, email?: string}  $row
+     */
+    protected function contactRowIsComplete(array $row): bool
+    {
+        return filled($row['name'] ?? null) && filled($row['phone_number'] ?? null);
+    }
+
+    public function validateStep(int $step): void
+    {
+        match ($step) {
+            1 => Validator::make(
+                [
+                    'business_name' => $this->business_name,
+                    'business_description' => $this->business_description,
+                ],
+                [
+                    'business_name' => ['required', 'string', 'max:255'],
+                    'business_description' => ['required', 'string', 'max:1000'],
+                ],
+            )->validate(),
+            2 => Validator::make(
+                ['business_category' => $this->business_category],
+                [
+                    'business_category' => ['required', 'string', Rule::in(array_keys($this->getBusinessCategoryOptions()))],
+                ],
+            )->validate(),
+            3 => $this->validateContactRows(),
+            default => null,
+        };
+    }
+
+    protected function validateContactRows(): void
+    {
+        foreach ($this->contactRows as $index => $row) {
+            if (! $this->contactRowHasAnyInput($row)) {
+                continue;
+            }
+
+            $validator = Validator::make($row, [
+                'name' => ['required', 'string', 'max:255'],
+                'phone_number' => ['required', 'string', 'max:32'],
+                'email' => ['nullable', 'email', 'max:255'],
+            ]);
+
+            if ($validator->fails()) {
+                throw ValidationException::withMessages([
+                    'contactRows' => 'Row '.($index + 1).': please enter a valid name and phone (and optional email), or clear the row.',
+                ]);
+            }
+        }
     }
 }
