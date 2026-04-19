@@ -351,6 +351,232 @@
         @apply px-4 py-10 text-center text-sm text-gray-500;
     }
 
+    /* Send campaign wizard */
+
+    .send-campaign-wizard {
+        @apply mx-auto max-w-3xl space-y-8 pb-10;
+    }
+
+    .send-campaign-wizard-hero {
+        @apply overflow-hidden rounded-2xl border border-violet-200/80 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg shadow-violet-500/25 sm:p-8;
+    }
+
+    .send-campaign-wizard-hero-inner {
+        @apply max-w-2xl space-y-2;
+    }
+
+    .send-campaign-wizard-kicker {
+        @apply text-xs font-semibold uppercase tracking-[0.2em] text-violet-100/90;
+    }
+
+    .send-campaign-wizard-title {
+        @apply text-2xl font-bold tracking-tight text-white sm:text-3xl;
+    }
+
+    .send-campaign-wizard-lead {
+        @apply text-sm leading-relaxed text-violet-50/95 sm:text-base;
+    }
+
+    .send-campaign-wizard-progress {
+        @apply flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-between sm:gap-3;
+    }
+
+    .send-campaign-wizard-step {
+        @apply flex flex-1 items-center gap-3 rounded-xl border border-violet-100 bg-white px-3 py-3 text-left shadow-sm ring-1 ring-violet-50 transition hover:border-violet-200 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-0;
+    }
+
+    .send-campaign-wizard-step--active {
+        @apply border-violet-400 bg-gradient-to-r from-violet-50 to-fuchsia-50 ring-2 ring-violet-200/80;
+    }
+
+    .send-campaign-wizard-step--done {
+        @apply border-emerald-200/80 bg-emerald-50/60;
+    }
+
+    .send-campaign-wizard-step-num {
+        @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-sm font-bold text-violet-800;
+    }
+
+    .send-campaign-wizard-step--active .send-campaign-wizard-step-num {
+        @apply bg-violet-600 text-white;
+    }
+
+    .send-campaign-wizard-step--done .send-campaign-wizard-step-num {
+        @apply bg-emerald-600 text-white;
+    }
+
+    .send-campaign-wizard-step-label {
+        @apply text-sm font-semibold text-gray-900;
+    }
+
+    .send-campaign-wizard-panel {
+        @apply overflow-hidden rounded-2xl border border-violet-200/70 bg-white p-6 shadow-md shadow-violet-500/10 ring-1 ring-violet-50 sm:p-8;
+    }
+
+    .send-campaign-wizard-section {
+        @apply space-y-6;
+    }
+
+    .send-campaign-wizard-section-title {
+        @apply text-xl font-bold tracking-tight text-gray-900;
+    }
+
+    .send-campaign-wizard-section-desc {
+        @apply text-sm leading-relaxed text-gray-600;
+    }
+
+    .send-campaign-wizard-choice-grid {
+        @apply grid gap-3 sm:grid-cols-3;
+    }
+
+    .send-campaign-wizard-choice {
+        @apply relative flex cursor-pointer flex-col gap-1 rounded-xl border border-gray-200 bg-gray-50/80 p-4 shadow-sm transition hover:border-violet-300 hover:bg-white hover:shadow-md;
+    }
+
+    .send-campaign-wizard-choice--checked {
+        @apply border-violet-400 bg-gradient-to-br from-violet-50 to-fuchsia-50 ring-2 ring-violet-200/80;
+    }
+
+    .send-campaign-wizard-choice-input {
+        @apply sr-only;
+    }
+
+    .send-campaign-wizard-choice-title {
+        @apply text-sm font-bold text-gray-900;
+    }
+
+    .send-campaign-wizard-choice-text {
+        @apply text-xs leading-relaxed text-gray-600;
+    }
+
+    .send-campaign-wizard-field-block {
+        @apply space-y-3 rounded-xl border border-violet-100 bg-violet-50/40 p-4;
+    }
+
+    .send-campaign-wizard-field-label {
+        @apply block text-xs font-bold uppercase tracking-wide text-violet-800;
+    }
+
+    .send-campaign-wizard-checkbox-grid {
+        @apply grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2;
+    }
+
+    .send-campaign-wizard-check {
+        @apply flex cursor-pointer flex-col gap-0.5 rounded-lg border border-white/80 bg-white px-3 py-2 shadow-sm ring-1 ring-violet-100/80 transition hover:border-violet-200 hover:ring-violet-200;
+    }
+
+    .send-campaign-wizard-check-input {
+        @apply mt-0.5 h-4 w-4 shrink-0 rounded border-violet-300 text-violet-600 focus:ring-violet-500;
+    }
+
+    .send-campaign-wizard-check-text {
+        @apply text-sm font-semibold text-gray-900;
+    }
+
+    .send-campaign-wizard-check-sub {
+        @apply text-xs text-gray-500;
+    }
+
+    .send-campaign-wizard-empty {
+        @apply rounded-lg border border-dashed border-violet-200 bg-white/60 px-4 py-6 text-center text-sm text-gray-600;
+    }
+
+    .send-campaign-wizard-callout {
+        @apply rounded-xl border border-amber-200/80 bg-amber-50/90 p-4 text-sm text-amber-950;
+    }
+
+    .send-campaign-wizard-callout-title {
+        @apply font-bold text-amber-900;
+    }
+
+    .send-campaign-wizard-callout-text {
+        @apply mt-1 leading-relaxed text-amber-900/90;
+    }
+
+    .send-campaign-wizard-callout-link {
+        @apply mt-3 inline-flex text-sm font-semibold text-violet-700 underline-offset-2 hover:text-violet-900;
+    }
+
+    .send-campaign-wizard-textarea {
+        @apply mt-1 w-full rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm text-gray-900 shadow-inner shadow-violet-500/5 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-400/40;
+    }
+
+    .send-campaign-wizard-input {
+        @apply mt-1 w-full rounded-xl border border-violet-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-400/40;
+    }
+
+    .send-campaign-wizard-meta-row {
+        @apply mt-1 flex justify-end;
+    }
+
+    .send-campaign-wizard-char-count {
+        @apply text-xs font-semibold text-violet-700;
+    }
+
+    .send-campaign-wizard-toggle-row {
+        @apply flex flex-wrap items-center gap-4;
+    }
+
+    .send-campaign-wizard-schedule-toggle {
+        @apply inline-flex cursor-pointer items-center gap-3 rounded-xl border border-violet-100 bg-violet-50/50 px-4 py-3 transition hover:border-violet-200 hover:bg-violet-50;
+    }
+
+    .send-campaign-wizard-schedule-checkbox {
+        @apply h-4 w-4 shrink-0 rounded border-violet-300 text-violet-600 focus:ring-violet-500;
+    }
+
+    .send-campaign-wizard-schedule-label {
+        @apply text-sm font-semibold text-gray-800;
+    }
+
+    .send-campaign-wizard-datetime-row {
+        @apply mt-4 grid gap-4 sm:grid-cols-2;
+    }
+
+    .send-campaign-wizard-summary {
+        @apply divide-y divide-violet-100 rounded-xl border border-violet-100 bg-violet-50/30;
+    }
+
+    .send-campaign-wizard-summary-row {
+        @apply grid gap-1 px-4 py-3 sm:grid-cols-[minmax(0,10rem)_1fr] sm:items-start sm:gap-4;
+    }
+
+    .send-campaign-wizard-summary-row--block {
+        @apply sm:grid-cols-1;
+    }
+
+    .send-campaign-wizard-summary dt {
+        @apply text-xs font-bold uppercase tracking-wide text-violet-800/80;
+    }
+
+    .send-campaign-wizard-summary dd {
+        @apply text-sm font-medium text-gray-900;
+    }
+
+    .send-campaign-wizard-summary-message {
+        @apply mt-1 whitespace-pre-wrap rounded-lg bg-white/80 p-3 text-sm leading-relaxed text-gray-800 ring-1 ring-violet-100;
+    }
+
+    .send-campaign-wizard-actions {
+        @apply mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-violet-100 pt-6;
+    }
+
+    .send-campaign-wizard-btn {
+        @apply inline-flex min-h-[2.75rem] min-w-[7rem] items-center justify-center rounded-xl px-5 text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .send-campaign-wizard-btn--primary {
+        @apply bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25 hover:from-violet-700 hover:to-fuchsia-700 focus-visible:ring-violet-500;
+    }
+
+    .send-campaign-wizard-btn--ghost {
+        @apply border border-violet-200 bg-white text-violet-800 shadow-sm hover:border-violet-300 hover:bg-violet-50 focus-visible:ring-violet-400;
+    }
+
+    .send-campaign-wizard-error {
+        @apply mt-1 text-sm font-medium text-rose-600;
+    }
+
     .subscription-status-pill {
         @apply inline-flex rounded-full px-2.5 py-1 text-xs font-bold;
     }

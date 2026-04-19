@@ -7,33 +7,22 @@ use App\Enums\MessageType;
 use App\Exceptions\SmsLimitReachedException;
 use App\Jobs\SendScheduledCampaignJob;
 use App\Models\Contact;
+use App\Models\Group;
 use App\Models\Message;
 use App\Models\MessageLog;
 use App\Models\User;
 use App\Services\SendCampaignService;
-use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Actions;
-use Filament\Schemas\Components\Callout;
-use Filament\Schemas\Components\EmbeddedSchema;
-use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use UnitEnum;
 
-/**
- * @property-read Schema $form
- */
 class SendCampaign extends Page
 {
     protected static string|UnitEnum|null $navigationGroup = 'Messaging';
@@ -44,123 +33,113 @@ class SendCampaign extends Page
 
     protected static ?string $title = 'Send Campaign';
 
-    protected string $view = 'filament-panels::pages.page';
+    protected ?string $heading = '';
+
+    protected string $view = 'filament.user.pages.send-campaign-wizard';
+
+    public int $wizardStep = 1;
+
+    public string $audience = 'contacts';
 
     /**
-     * @var array<string, mixed> | null
+     * @var list<int|string>
      */
-    public ?array $data = [];
+    public array $contactIds = [];
+
+    /**
+     * @var list<int|string>
+     */
+    public array $groupIds = [];
+
+    public string $content = '';
+
+    public bool $scheduleCampaign = false;
+
+    public ?string $scheduledDate = null;
+
+    public ?string $scheduledTime = null;
 
     public function mount(): void
     {
-        $this->form->fill([
-            'send_to_all_contacts' => false,
-            'contact_ids' => [],
-            'schedule_campaign' => false,
-            'scheduled_date' => null,
-            'scheduled_time' => null,
-        ]);
+        $this->resetWizardState();
     }
 
-    public function content(Schema $schema): Schema
+    public function resetWizardState(): void
     {
-        return $schema
-            ->components([
-                $this->getFormContentComponent(),
-            ]);
+        $this->wizardStep = 1;
+        $this->audience = 'contacts';
+        $this->contactIds = [];
+        $this->groupIds = [];
+        $this->content = '';
+        $this->scheduleCampaign = false;
+        $this->scheduledDate = null;
+        $this->scheduledTime = null;
     }
 
-    protected function getFormContentComponent(): Form
+    public function updatedAudience(string $value): void
     {
-        return Form::make([EmbeddedSchema::make('form')])
-            ->id('send-campaign-form')
-            ->livewireSubmitHandler('send')
-            ->footer([
-                Actions::make([
-                    Action::make('send')
-                        ->label('Send')
-                        ->icon(Heroicon::OutlinedPaperAirplane)
-                        ->submit('send')
-                        ->color('primary'),
-                ])->fullWidth(),
-            ]);
+        if ($value !== 'contacts') {
+            $this->contactIds = [];
+        }
+        if ($value !== 'groups') {
+            $this->groupIds = [];
+        }
     }
 
-    public function form(Schema $schema): Schema
+    public function nextStep(): void
     {
-        return $schema
-            ->components([
-                Callout::make('Content policy reminder')
-                    ->description('Avoid URLs/links and profanity. Violations may still show as sent, but messages may not be delivered and penalty credits may apply. Bulk penalties are charged per recipient.')
-                    ->info()
-                    ->actions([
-                        Action::make('viewContentPolicy')
-                            ->label('View content policy')
-                            ->url(MessagePolicy::getUrl(panel: 'user')),
-                    ])
-                    ->columnSpanFull(),
-                Toggle::make('send_to_all_contacts')
-                    ->label('Send to all contacts')
-                    ->helperText('Enable this to send to your full contact list.')
-                    ->live(),
-                Toggle::make('schedule_campaign')
-                    ->label('Schedule campaign')
-                    ->helperText('Enable this to send the campaign at a specific date and time.')
-                    ->live(),
-                DatePicker::make('scheduled_date')
-                    ->label('Send date')
-                    ->helperText(fn (): string => 'Choose the campaign date ('.$this->getCampaignTimezone().').')
-                    ->minDate(fn () => now($this->getCampaignTimezone())->toDateString())
-                    ->visible(fn (Get $get): bool => (bool) $get('schedule_campaign'))
-                    ->required(fn (Get $get): bool => (bool) $get('schedule_campaign')),
-                TimePicker::make('scheduled_time')
-                    ->label('Send time')
-                    ->helperText(fn (): string => 'Choose the campaign time ('.$this->getCampaignTimezone().').')
-                    ->seconds(false)
-                    ->visible(fn (Get $get): bool => (bool) $get('schedule_campaign'))
-                    ->required(fn (Get $get): bool => (bool) $get('schedule_campaign')),
-                CheckboxList::make('contact_ids')
-                    ->label('Select contacts')
-                    ->options(fn (): array => Contact::query()
-                        ->where('user_id', Filament::auth()->id())
-                        ->orderBy('name')
-                        ->get()
-                        ->mapWithKeys(fn (Contact $contact): array => [
-                            $contact->id => "{$contact->name} ({$contact->phone_number})",
-                        ])
-                        ->all())
-                    ->columns(2)
-                    ->searchable()
-                    ->visible(fn (Get $get): bool => ! (bool) $get('send_to_all_contacts'))
-                    ->required(fn (Get $get): bool => ! (bool) $get('send_to_all_contacts')),
-                Textarea::make('content')
-                    ->label('Message')
-                    ->required()
-                    ->live()
-                    ->maxLength(160)
-                    ->helperText(fn (Get $get): string => strlen((string) ($get('content') ?? '')).' / 160 characters')
-                    ->rows(5)
-                    ->columnSpanFull(),
-            ])
-            ->statePath('data');
+        $this->validateStep($this->wizardStep);
+
+        if ($this->wizardStep < 4) {
+            $this->wizardStep++;
+        }
+    }
+
+    public function previousStep(): void
+    {
+        if ($this->wizardStep > 1) {
+            $this->wizardStep--;
+        }
+    }
+
+    public function goToStep(int $step): void
+    {
+        if ($step < 1 || $step > 4 || $step > $this->wizardStep) {
+            return;
+        }
+
+        $this->wizardStep = $step;
     }
 
     public function send(SendCampaignService $sendCampaignService): void
     {
-        $state = $this->form->getState();
+        $this->validateStep(1);
+        $this->validateStep(2);
+        $this->validateStep(3);
 
         $user = Filament::auth()->user();
         if (! $user instanceof User) {
             return;
         }
 
-        $scheduleCampaign = (bool) ($state['schedule_campaign'] ?? false);
-        if ($scheduleCampaign) {
+        $contactIds = $this->resolveTargetContactIds($user);
+
+        if ($contactIds->isEmpty()) {
+            Notification::make()
+                ->danger()
+                ->title('No recipients')
+                ->body('Choose an audience that includes at least one contact.')
+                ->send();
+
+            return;
+        }
+
+        if ($this->scheduleCampaign) {
             $campaignTimezone = $this->getCampaignTimezone();
             $scheduledFor = Carbon::parse(sprintf(
                 '%s %s',
-                (string) ($state['scheduled_date'] ?? ''),
-                (string) ($state['scheduled_time'] ?? ''),
+                (string) $this->scheduledDate,
+                (string) $this->scheduledTime,
             ), $campaignTimezone);
 
             if ($scheduledFor->isPast()) {
@@ -173,15 +152,9 @@ class SendCampaign extends Page
                 return;
             }
 
-            $contactIds = $this->resolveTargetContactIds(
-                user: $user,
-                contactIds: (array) ($state['contact_ids'] ?? []),
-                sendToAllContacts: (bool) ($state['send_to_all_contacts'] ?? false),
-            );
-
             $message = Message::query()->create([
                 'user_id' => $user->id,
-                'content' => (string) $state['content'],
+                'content' => $this->content,
                 'type' => MessageType::Sms,
             ]);
 
@@ -208,14 +181,7 @@ class SendCampaign extends Page
                 ->body('Campaign queued for '.$contactIds->count().' contact(s). It will send on '.$scheduledFor->format('M d, Y h:i A').' ('.$campaignTimezone.').')
                 ->send();
 
-            $this->form->fill([
-                'send_to_all_contacts' => false,
-                'contact_ids' => [],
-                'content' => null,
-                'schedule_campaign' => false,
-                'scheduled_date' => null,
-                'scheduled_time' => null,
-            ]);
+            $this->resetWizardState();
 
             return;
         }
@@ -223,9 +189,9 @@ class SendCampaign extends Page
         try {
             $result = $sendCampaignService->send(
                 user: $user,
-                content: (string) $state['content'],
-                contactIds: $state['contact_ids'] ?? [],
-                sendToAllContacts: (bool) ($state['send_to_all_contacts'] ?? false),
+                content: $this->content,
+                contactIds: $contactIds->all(),
+                sendToAllContacts: $this->audience === 'all',
             );
         } catch (SmsLimitReachedException $exception) {
             Notification::make()
@@ -248,14 +214,182 @@ class SendCampaign extends Page
             ))
             ->send();
 
-        $this->form->fill([
-            'send_to_all_contacts' => false,
-            'contact_ids' => [],
-            'content' => null,
-            'schedule_campaign' => false,
-            'scheduled_date' => null,
-            'scheduled_time' => null,
+        $this->resetWizardState();
+    }
+
+    /**
+     * @return EloquentCollection<int, Contact>
+     */
+    public function getContactsForWizard(): EloquentCollection
+    {
+        $user = Filament::auth()->user();
+        if (! $user instanceof User) {
+            return new EloquentCollection;
+        }
+
+        return Contact::query()
+            ->where('user_id', $user->id)
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * @return EloquentCollection<int, Group>
+     */
+    public function getGroupsForWizard(): EloquentCollection
+    {
+        $user = Filament::auth()->user();
+        if (! $user instanceof User) {
+            return new EloquentCollection;
+        }
+
+        return Group::query()
+            ->where('user_id', $user->id)
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function getCampaignTimezoneLabel(): string
+    {
+        return $this->getCampaignTimezone();
+    }
+
+    public function getAudienceSummary(): string
+    {
+        return match ($this->audience) {
+            'all' => 'All contacts',
+            'groups' => 'Groups: '.$this->getSelectedGroupNames()->implode(', ') ?: '—',
+            default => 'Selected contacts ('.count($this->contactIds).')',
+        };
+    }
+
+    public function getTimingSummary(): string
+    {
+        if (! $this->scheduleCampaign) {
+            return 'Send immediately';
+        }
+
+        $tz = $this->getCampaignTimezone();
+
+        try {
+            $at = Carbon::parse(sprintf('%s %s', (string) $this->scheduledDate, (string) $this->scheduledTime), $tz);
+
+            return 'Scheduled for '.$at->format('M d, Y h:i A').' ('.$tz.')';
+        } catch (\Throwable) {
+            return 'Scheduled';
+        }
+    }
+
+    public function getRecipientCount(): int
+    {
+        $user = Filament::auth()->user();
+        if (! $user instanceof User) {
+            return 0;
+        }
+
+        return $this->resolveTargetContactIds($user)->count();
+    }
+
+    private function validateStep(int $step): void
+    {
+        $user = Filament::auth()->user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        match ($step) {
+            1 => $this->validateAudienceStep($user),
+            2 => $this->validate([
+                'content' => ['required', 'string', 'max:160'],
+            ]),
+            3 => $this->validate([
+                'scheduleCampaign' => ['boolean'],
+                'scheduledDate' => ['required_if:scheduleCampaign,true', 'nullable', 'date'],
+                'scheduledTime' => ['required_if:scheduleCampaign,true', 'nullable', 'date_format:H:i'],
+            ]),
+            default => null,
+        };
+
+        if ($step === 3 && $this->scheduleCampaign) {
+            $tz = $this->getCampaignTimezone();
+            $scheduledFor = Carbon::parse(sprintf(
+                '%s %s',
+                (string) $this->scheduledDate,
+                (string) $this->scheduledTime,
+            ), $tz);
+
+            if ($scheduledFor->isPast()) {
+                throw ValidationException::withMessages([
+                    'scheduledTime' => 'Choose a future date and time ('.$tz.').',
+                ]);
+            }
+        }
+    }
+
+    private function validateAudienceStep(User $user): void
+    {
+        $this->validate([
+            'audience' => ['required', Rule::in(['all', 'contacts', 'groups'])],
         ]);
+
+        if ($this->audience === 'contacts') {
+            $ids = $this->normalizedIntIds($this->contactIds);
+            if ($ids->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'contactIds' => 'Select at least one contact.',
+                ]);
+            }
+
+            $validCount = Contact::query()
+                ->where('user_id', $user->id)
+                ->whereIn('id', $ids->all())
+                ->count();
+
+            if ($validCount !== $ids->count()) {
+                throw ValidationException::withMessages([
+                    'contactIds' => 'One or more selected contacts are invalid.',
+                ]);
+            }
+        }
+
+        if ($this->audience === 'groups') {
+            $groupIds = $this->normalizedIntIds($this->groupIds);
+            if ($groupIds->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'groupIds' => 'Select at least one group.',
+                ]);
+            }
+
+            $validCount = Group::query()
+                ->where('user_id', $user->id)
+                ->whereIn('id', $groupIds->all())
+                ->count();
+
+            if ($validCount !== $groupIds->count()) {
+                throw ValidationException::withMessages([
+                    'groupIds' => 'One or more selected groups are invalid.',
+                ]);
+            }
+
+            if ($this->resolveTargetContactIds($user)->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'groupIds' => 'No contacts belong to the selected groups. Add contacts to a group or choose a different audience.',
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @param  list<int|string>  $ids
+     * @return Collection<int, int>
+     */
+    private function normalizedIntIds(array $ids): Collection
+    {
+        return collect($ids)
+            ->map(fn (mixed $id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values();
     }
 
     private function getCampaignTimezone(): string
@@ -264,12 +398,11 @@ class SendCampaign extends Page
     }
 
     /**
-     * @param  array<int, mixed>  $contactIds
      * @return Collection<int, int>
      */
-    private function resolveTargetContactIds(User $user, array $contactIds, bool $sendToAllContacts): Collection
+    private function resolveTargetContactIds(User $user): Collection
     {
-        if ($sendToAllContacts) {
+        if ($this->audience === 'all') {
             return Contact::query()
                 ->where('user_id', $user->id)
                 ->pluck('id')
@@ -277,9 +410,40 @@ class SendCampaign extends Page
                 ->values();
         }
 
-        return collect($contactIds)
-            ->map(fn (mixed $id): int => (int) $id)
-            ->filter()
-            ->values();
+        if ($this->audience === 'groups') {
+            $groupIds = $this->normalizedIntIds($this->groupIds);
+
+            return Contact::query()
+                ->where('user_id', $user->id)
+                ->whereHas('groups', fn ($query) => $query->whereIn('groups.id', $groupIds->all()))
+                ->pluck('id')
+                ->map(fn (mixed $id): int => (int) $id)
+                ->unique()
+                ->values();
+        }
+
+        return $this->normalizedIntIds($this->contactIds);
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    private function getSelectedGroupNames(): Collection
+    {
+        $user = Filament::auth()->user();
+        if (! $user instanceof User) {
+            return collect();
+        }
+
+        $ids = $this->normalizedIntIds($this->groupIds);
+        if ($ids->isEmpty()) {
+            return collect();
+        }
+
+        return Group::query()
+            ->where('user_id', $user->id)
+            ->whereIn('id', $ids->all())
+            ->orderBy('name')
+            ->pluck('name');
     }
 }
