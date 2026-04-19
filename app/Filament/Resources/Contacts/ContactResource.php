@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\Contacts;
 
+use App\Filament\Resources\Contacts\Pages\CreateContact;
+use App\Filament\Resources\Contacts\Pages\EditContact;
 use App\Filament\Resources\Contacts\Pages\ListContacts;
 use App\Filament\Resources\Contacts\Pages\ViewContact;
+use App\Filament\Resources\Contacts\Schemas\ContactForm;
 use App\Filament\Resources\Contacts\Schemas\ContactInfolist;
 use App\Filament\Resources\Contacts\Tables\ContactsTable;
 use App\Models\Contact;
@@ -26,6 +29,11 @@ class ContactResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
+    public static function form(Schema $schema): Schema
+    {
+        return ContactForm::configure($schema);
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return ContactInfolist::configure($schema);
@@ -45,7 +53,9 @@ class ContactResource extends Resource
     {
         return [
             'index' => ListContacts::route('/'),
+            'create' => CreateContact::route('/create'),
             'view' => ViewContact::route('/{record}'),
+            'edit' => EditContact::route('/{record}/edit'),
         ];
     }
 }

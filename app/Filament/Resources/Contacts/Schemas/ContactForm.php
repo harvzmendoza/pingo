@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Filament\User\Resources\Contacts\Schemas;
+namespace App\Filament\Resources\Contacts\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Builder;
 
 class ContactForm
 {
@@ -13,6 +12,13 @@ class ContactForm
     {
         return $schema
             ->components([
+                Select::make('user_id')
+                    ->label('Owner')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->visible(fn (string $operation): bool => $operation === 'create'),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -26,11 +32,7 @@ class ContactForm
                     ->maxLength(255),
                 Select::make('groups')
                     ->label('Groups')
-                    ->relationship(
-                        'groups',
-                        'name',
-                        modifyQueryUsing: fn (Builder $query): Builder => $query->where('user_id', auth()->id()),
-                    )
+                    ->relationship('groups', 'name')
                     ->multiple()
                     ->preload()
                     ->searchable(),

@@ -16,6 +16,11 @@ class ContactInfolist
                     ->label('Phone number'),
                 TextEntry::make('email')
                     ->placeholder('—'),
+                TextEntry::make('groups.name')
+                    ->label('Groups')
+                    ->badge()
+                    ->separator(', ')
+                    ->placeholder('—'),
             ]);
     }
 }

@@ -18,6 +18,11 @@ class ContactInfolist
                     ->placeholder('—'),
                 TextEntry::make('user.name')
                     ->label('Owner'),
+                TextEntry::make('groups.name')
+                    ->label('Groups')
+                    ->badge()
+                    ->separator(', ')
+                    ->placeholder('—'),
                 TextEntry::make('created_at')
                     ->dateTime(),
             ]);

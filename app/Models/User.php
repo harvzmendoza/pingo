@@ -68,6 +68,14 @@ class User extends Authenticatable implements HasAvatar
     }
 
     /**
+     * @return HasMany<Group, $this>
+     */
+    public function groups(): HasMany
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    /**
      * @return HasMany<Message, $this>
      */
     public function messages(): HasMany
