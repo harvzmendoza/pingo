@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <div class="subscription-page">
+    <div class="subscription-page @if ($isRedirectingToSendCampaign) opacity-60 pointer-events-none @endif">
         <header class="subscription-page-hero">
             <div class="subscription-page-hero-inner">
                 <p class="subscription-page-hero-kicker">Billing & plans</p>
@@ -46,8 +46,12 @@
                                 type="button"
                                 class="subscription-plan-cta"
                                 wire:click="startFreeTrial({{ $plan->id }})"
+                                wire:loading.attr="disabled"
+                                wire:target="startFreeTrial"
+                                @disabled($isRedirectingToSendCampaign)
                             >
-                                Start free trial
+                                <span wire:loading.remove wire:target="startFreeTrial">Start free trial</span>
+                                <span wire:loading wire:target="startFreeTrial">Starting…</span>
                             </button>
                             <p class="subscription-plan-footnote">
                                 One-time {{ \App\Services\SubscriptionService::FREE_TRIAL_DAYS }}-day trial. Your SMS allowance auto-renews each calendar day until the trial ends.
@@ -150,4 +154,16 @@
             </div>
         </section>
     </div>
+
+    @if ($isRedirectingToSendCampaign)
+        <div
+            class="send-campaign-wizard-finishing"
+            x-data
+            x-init="setTimeout(() => $wire.redirectToSendCampaign(), 1500)"
+        >
+            <div class="send-campaign-wizard-finishing-spinner" aria-hidden="true"></div>
+            <p class="send-campaign-wizard-finishing-title">Trial activated</p>
+            <p class="send-campaign-wizard-finishing-text">Taking you to Send campaign so you can send your first message.</p>
+        </div>
+    @endif
 </x-filament-panels::page>

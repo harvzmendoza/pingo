@@ -2,13 +2,13 @@
 
 namespace App\Filament\User\Pages;
 
+use App\Filament\User\Pages\User\SubscriptionPlans;
 use App\Models\Contact;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\SubscriptionService;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
-use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -250,9 +250,9 @@ class BusinessOnboarding extends Page
         $this->isFinishing = true;
     }
 
-    public function redirectToDashboard(): void
+    public function redirectToSubscriptionPage(): void
     {
-        $this->redirect(Dashboard::getUrl(panel: 'user'), navigate: true);
+        $this->redirect(SubscriptionPlans::getUrl(panel: 'user'), navigate: true);
     }
 
     /**

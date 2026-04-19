@@ -3,6 +3,7 @@
 namespace App\Filament\User\Pages\User;
 
 use App\Enums\SubscriptionRequestStatus;
+use App\Filament\User\Pages\SendCampaign;
 use App\Models\Plan;
 use App\Models\SubscriptionHistory;
 use App\Models\SubscriptionRequest;
@@ -39,6 +40,8 @@ class SubscriptionPlans extends Page
     protected ?string $heading = '';
 
     protected string $view = 'filament.user.pages.user.subscription-plans';
+
+    public bool $isRedirectingToSendCampaign = false;
 
     /**
      * @return Collection<int, Plan>
@@ -133,6 +136,13 @@ class SubscriptionPlans extends Page
             ->title('Free trial started')
             ->body('Your one-time trial runs for '.SubscriptionService::FREE_TRIAL_DAYS.' days. Your SMS allowance renews automatically at the start of each calendar day ('.config('app.timezone').') until the trial ends.')
             ->send();
+
+        $this->isRedirectingToSendCampaign = true;
+    }
+
+    public function redirectToSendCampaign(): void
+    {
+        $this->redirect(SendCampaign::getUrl(panel: 'user'), navigate: true);
     }
 
     public function requestSubscriptionAction(): Action

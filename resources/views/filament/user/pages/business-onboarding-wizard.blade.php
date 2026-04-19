@@ -154,7 +154,7 @@
             @if ($this->wizardStep === 4)
                 <div class="send-campaign-wizard-section">
                     <h2 class="send-campaign-wizard-section-title">Review & finish</h2>
-                    <p class="send-campaign-wizard-section-desc">Confirm your details, then complete setup to open your dashboard.</p>
+                    <p class="send-campaign-wizard-section-desc">Confirm your details, then complete setup. Next you will open Subscription to manage your plan.</p>
 
                     <dl class="send-campaign-wizard-summary">
                         <div class="send-campaign-wizard-summary-row">
@@ -236,11 +236,11 @@
         <div
             class="send-campaign-wizard-finishing"
             x-data
-            x-init="setTimeout(() => $wire.redirectToDashboard(), 1500)"
+            x-init="setTimeout(() => $wire.redirectToSubscriptionPage(), 1500)"
         >
             <div class="send-campaign-wizard-finishing-spinner" aria-hidden="true"></div>
             <p class="send-campaign-wizard-finishing-title">Setting up your workspace</p>
-            <p class="send-campaign-wizard-finishing-text">You will be redirected to your dashboard in a moment.</p>
+            <p class="send-campaign-wizard-finishing-text">You will be redirected to Subscription in a moment.</p>
         </div>
     @endif
 </x-filament-panels::page>
