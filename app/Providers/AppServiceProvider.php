@@ -2,13 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use App\Observers\UserObserver;
 use App\Services\Sms\Contracts\SmsProviderContract;
 use App\Services\Sms\Providers\LogSmsProvider;
 use App\Services\Sms\Providers\SkySmsProvider;
 use App\Services\Sms\Providers\UniSmsProvider;
+use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\ServiceProvider;
-use App\Observers\UserObserver;
-use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,5 +37,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         User::observe(UserObserver::class);
+
+        CreateRecord::disableCreateAnother();
     }
 }
