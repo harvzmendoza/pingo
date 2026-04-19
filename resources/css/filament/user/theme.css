@@ -10,6 +10,16 @@
 
 
 @layer components {
+    /* Topbar quick link (user panel) */
+
+    .send-message-topbar-btn {
+        @apply me-3 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/25 transition hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-violet-500/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 sm:px-4 sm:text-sm;
+    }
+
+    .send-message-topbar-btn-label {
+        @apply whitespace-nowrap;
+    }
+
     .vite-theme-card {
         @apply rounded-2xl border border-blue-300/40 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-6 shadow-sm shadow-blue-500/30;
     }

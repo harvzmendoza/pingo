@@ -60,6 +60,10 @@ class UserPanelProvider extends PanelProvider
                 DeliveryStatusSplitChart::class,
             ])
             ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+                fn (): string => view('filament.user.topbar.send-message-button')->render(),
+            )
+            ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => view('filament.user.topbar.tutorial-help-trigger')->render(),
             )
