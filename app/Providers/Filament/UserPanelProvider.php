@@ -71,6 +71,12 @@ class UserPanelProvider extends PanelProvider
                 PanelsRenderHook::SIDEBAR_FOOTER,
                 fn (): string => view('filament.user.sidebar.footer')->render(),
             )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): string => request()->routeIs('filament.user.pages.business-onboarding')
+                    ? view('filament.user.layout.onboarding-simple-brand')->render()
+                    : '',
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

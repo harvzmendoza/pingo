@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+<x-filament-panels::page.simple>
     <div class="send-campaign-wizard send-campaign-wizard--full" wire:key="business-onboarding-wizard-root">
         <header class="send-campaign-wizard-hero">
             <div class="send-campaign-wizard-hero-inner">
@@ -243,4 +243,4 @@
             <p class="send-campaign-wizard-finishing-text">You will be redirected to Subscription in a moment.</p>
         </div>
     @endif
-</x-filament-panels::page>
+</x-filament-panels::page.simple>

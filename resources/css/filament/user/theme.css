@@ -10,6 +10,24 @@
 
 
 @layer components {
+    /* Business onboarding (simple layout): brand in top bar with user menu */
+
+    .fi-body-business-onboarding .fi-simple-layout {
+        @apply relative;
+    }
+
+    .fi-user-onboarding-brand {
+        @apply pointer-events-auto absolute start-0 top-0 z-10 flex h-16 max-w-[min(100%,22rem)] items-center ps-4 md:ps-6 lg:ps-8;
+    }
+
+    .fi-user-onboarding-brand .fi-logo {
+        @apply max-h-10 w-auto max-w-full object-contain object-left;
+    }
+
+    .fi-user-onboarding-brand .fi-logo img {
+        @apply max-h-10 w-auto max-w-full object-contain object-left;
+    }
+
     /* Topbar quick link (user panel) */
 
     .send-message-topbar-btn {

@@ -20,6 +20,11 @@ use UnitEnum;
 
 class BusinessOnboarding extends Page
 {
+    /**
+     * Simple layout hides the main panel sidebar so onboarding stays focused.
+     */
+    protected static string $layout = 'filament-panels::components.layout.simple';
+
     protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = null;
@@ -54,6 +59,25 @@ class BusinessOnboarding extends Page
     public bool $startFreeTrial = true;
 
     public bool $isFinishing = false;
+
+    /**
+     * Required by the simple page wrapper; keep false so the wizard hero is the only headline.
+     */
+    public function hasLogo(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getExtraBodyAttributes(): array
+    {
+        return [
+            ...parent::getExtraBodyAttributes(),
+            'class' => 'fi-body-business-onboarding',
+        ];
+    }
 
     public function mount(): void
     {
