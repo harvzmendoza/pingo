@@ -1,9 +1,9 @@
 @php
-    use App\Filament\User\Pages\SendCampaign;
+    use App\Filament\User\Pages\SendMessage;
 @endphp
 
 <a
-    href="{{ SendCampaign::getUrl(panel: 'user') }}"
+    href="{{ SendMessage::getUrl(panel: 'user') }}"
     wire:navigate
     class="send-message-topbar-btn"
 >
