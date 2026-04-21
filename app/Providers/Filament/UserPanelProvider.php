@@ -12,6 +12,8 @@ use App\Filament\User\Widgets\DeliveryTrendChart;
 use App\Filament\User\Widgets\MessagingStats;
 use App\Http\Middleware\EnsureUserBusinessOnboardingIsComplete;
 use App\Http\Middleware\EnsureUserHasUserRole;
+use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
+use DutchCodingCompany\FilamentSocialite\Provider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -25,6 +27,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Config;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class UserPanelProvider extends PanelProvider
@@ -71,6 +74,22 @@ class UserPanelProvider extends PanelProvider
                 PanelsRenderHook::SIDEBAR_FOOTER,
                 fn (): string => view('filament.user.sidebar.footer')->render(),
             )
+            ->plugins([
+                FilamentSocialitePlugin::make()
+                    ->providers([
+                        Provider::make('google')
+                            ->label('Google')
+                            ->icon('heroicon-o-globe-alt')
+                            ->outlined(false)
+                            ->visible(fn (): bool => filled(Config::string('services.google.client_id'))),
+                        Provider::make('github')
+                            ->label('GitHub')
+                            ->icon('heroicon-o-code-bracket')
+                            ->outlined(false)
+                            ->visible(fn (): bool => filled(Config::string('services.github.client_id'))),
+                    ])
+                    ->registration(true),
+            ])
             ->renderHook(
                 PanelsRenderHook::SIMPLE_LAYOUT_START,
                 fn (): string => request()->routeIs('filament.user.pages.business-onboarding')
