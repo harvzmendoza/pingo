@@ -54,7 +54,6 @@ class UserPanelProvider extends PanelProvider
                 BusinessOnboarding::class,
                 MessagesCalendar::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\Filament\User\Widgets')
             ->widgets([
                 MessagingStats::class,
                 DeliveryTrendChart::class,
